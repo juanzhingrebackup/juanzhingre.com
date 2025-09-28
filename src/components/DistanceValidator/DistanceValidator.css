@@ -1,0 +1,51 @@
+.distance-validator {
+  margin: 8px 0;
+  width: 100%;
+  display: block;
+}
+
+.validation-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+
+.validation-status.validating {
+  color: #000080;
+  background: #e0e0e0;
+}
+
+.validation-status.valid {
+  color: #008000;
+  background: #e8f5e8;
+  border: 1px solid #008000;
+}
+
+.validation-status.invalid {
+  color: #ff0000;
+  background: #ffe8e8;
+  border: 1px solid #ff0000;
+}
+
+.status-icon {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-icon.validating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.status-text {
+  flex: 1;
+  line-height: 1.2;
+}

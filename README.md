@@ -10,8 +10,11 @@ Produced and creative decisions approved by Juan Zhingre
 - Node.js (version 14 or higher)
 - npm
 
-### Installation
+### Installation and Startup
 1. Clone or download this project
+   ```bash
+   git clone https://github.com/byjohnmichael/juanzhingre.com.git
+   ```
 2. Navigate to the project directory:
    ```bash
    cd juanzhingre.com
@@ -22,7 +25,11 @@ Produced and creative decisions approved by Juan Zhingre
    ```
 4. Start the development server:
    ```bash
-   npm start
+   npm run start
    ```
 5. Open your browser and go to `http://localhost:2509`
-# Test deployment
+
+### Vercel Startup
+```
+npm run vercel
+```

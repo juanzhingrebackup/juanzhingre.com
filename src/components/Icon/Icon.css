@@ -6,7 +6,6 @@
     user-select: none;
     padding: 8px;
     border-radius: 8px;
-    transition: all 0.2s ease;
     position: absolute;
     will-change: transform;
     transform: scale(1);
@@ -18,8 +17,10 @@
     transition: none;
     will-change: left, top;
     transform: translateZ(0);
-    background-color: rgba(255, 255, 255, 0.15);
-    transform: scale(1.1) translateZ(0);
+    background-color: transparent !important;
+    outline: 1px dotted black;
+    outline-offset: -2px;
+    border-radius: 0;
     z-index: 9999;
 }
 
@@ -33,18 +34,24 @@
     }
 }
 
-.iconContainer:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
+.iconContainer:hover .iconImage {
+    transform: scaleX(-1);
 }
 
 .iconContainer.dragging:hover {
-    transform: scale(1.1) translateZ(0);
+    transform: translateZ(0);
+}
+
+.iconContainer.dragging .iconImage {
+    transform: scaleX(-1);
 }
 
 .iconContainer.selected:not(.dragging) {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
+    outline: 1px dotted black;
+    outline-offset: -2px;
+    background-color: transparent !important;
+    border-radius: 0;
+
 }
 
 .iconCircle {

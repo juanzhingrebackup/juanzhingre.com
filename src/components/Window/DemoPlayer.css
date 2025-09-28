@@ -1,15 +1,20 @@
 .playerContainer {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: auto;
+    min-height: 200px;
+    max-height: 80vh;
     background: white;
     border: 2px solid black;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: "Perfect DOS VGA 437",
+                 "Courier New",
+                 Courier,
+                 monospace;
 }
 
 .tableContainer {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: hidden;
     border-bottom: 1px solid #ccc;
 }
 
@@ -57,7 +62,7 @@
 }
 
 .tableBody {
-    /* Empty for now */
+    background-color: white;
 }
 
 .tableRow {

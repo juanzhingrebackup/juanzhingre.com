@@ -1,11 +1,13 @@
 .musicContainer {
     display: flex;
     height: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    width: 100%;
     background: rgb(184, 184, 184);
     border: 2px solid black;
-    font-family: 'Courier New', monospace;
+    font-family: "Perfect DOS VGA 437",
+                 "Courier New",
+                 Courier,
+                 monospace;
 }
 
 .leftSection {
@@ -14,15 +16,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 8px 5px;
 }
 
 .profileCircle {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     border: 2px solid black;
     border-radius: 50%;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     background: white;
     overflow: hidden;
 }
@@ -35,8 +37,8 @@
 
 .profileText {
     text-align: center;
-    font-size: 16px;
-    line-height: 1.4;
+    font-size: 18px;
+    line-height: 1.3;
     color: black;
 }
 
@@ -44,7 +46,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 40px 20px;
+    padding: 8px 5px;
     justify-content: center;
 }
 
@@ -57,11 +59,11 @@
 .serviceItem {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
     color: black;
-    font-size: 16px;
-    padding: 8px 0;
+    font-size: 18px;
+    padding: 10px 0;
     transition: background-color 0.2s ease;
 }
 
@@ -70,7 +72,7 @@
 }
 
 .serviceIcon {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     flex-shrink: 0;
 }

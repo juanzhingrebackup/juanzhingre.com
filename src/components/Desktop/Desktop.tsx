@@ -2,7 +2,7 @@ import { Icon as IconType, Window as WindowType, DesktopState } from '../../type
 import React, { useState, useCallback, useEffect } from 'react';
 import AppointmentMaker from '../Window/AppointmentMaker';
 import FullImageViewer from '../Window/FullImageViewer';
-import PhotoGallery from '../Window/PhotoGallery';
+import Ishv4ra from '../Window/ishv4ra';
 import MusicWindow from '../Window/MusicWindow';
 import CreditsWindow from '../Window/Origins';
 import DemoPlayer from '../Window/DemoPlayer';
@@ -241,7 +241,7 @@ const Desktop: React.FC = () => {
                 title: 'Music',
                 type: 'app',
                 position: isMobile ? { x: 10, y: 10 } : { x: 150, y: 150 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 600, height: 500 },
+                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 600, height: 350 },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -261,12 +261,12 @@ const Desktop: React.FC = () => {
                 title: 'ishv4ra',
                 type: 'app',
                 position: isMobile ? { x: 10, y: 10 } : { x: 100, y: 100 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 1000, height: 700 },
+                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 800, height: 600 },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
                 zIndex: Date.now(),
-                content: <PhotoGallery onOpenCollection={handleOpenCollection} />
+                content: <Ishv4ra onOpenCollection={handleOpenCollection} />
             };
 
             setDesktopState(prev => ({
@@ -276,12 +276,20 @@ const Desktop: React.FC = () => {
             }));
         } else if (icon.id === 'demos') {
             const isMobile = window.innerWidth <= 768;
+            // Calculate height based on number of songs dynamically
+            const songCount = 7; // Number of demo tracks
+            const titleBarHeight = 20; // Window title bar height
+            const tableHeaderHeight = 32; // Table header row height
+            const rowHeight = 36; // Each song row height
+            const padding = 16; // Additional padding around content
+            const calculatedHeight = titleBarHeight + tableHeaderHeight + (songCount * rowHeight) + padding;
+            
             const newWindow: WindowType = {
                 id: `window-${icon.id}`,
                 title: icon.name,
                 type: 'app',
                 position: isMobile ? { x: 10, y: 10 } : { x: 100, y: 100 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 800, height: 500 },
+                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 800, height: calculatedHeight },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -301,7 +309,7 @@ const Desktop: React.FC = () => {
                 title: icon.name,
                 type: 'app',
                 position: isMobile ? { x: 10, y: 10 } : { x: 200, y: 150 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 500, height: 750 },
+                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 500, height: 850 },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -518,8 +526,24 @@ const Desktop: React.FC = () => {
                                             }));
                                         }}
                                     >
-                                        {iconSrc && <img src={iconSrc} alt="" className="taskbarIcon" />}
-                                        {window.title}
+                                        <div className="taskbarItemContent">
+                                            {iconSrc && <img src={iconSrc} alt="" className="taskbarIcon" />}
+                                            <span className="taskbarTitle">{window.title}</span>
+                                        </div>
+                                        <button
+                                            className="taskbarCloseButton"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDesktopState(prev => ({
+                                                    ...prev,
+                                                    windows: prev.windows.filter(w => w.id !== window.id),
+                                                    activeWindowId: prev.activeWindowId === window.id ? null : prev.activeWindowId
+                                                }));
+                                            }}
+                                            title="Close"
+                                        >
+                                            ×
+                                        </button>
                                     </div>
                                 );
                             })}
@@ -531,7 +555,6 @@ const Desktop: React.FC = () => {
                 </div>
 
                 {/* Start Menu */}
-                {console.log('Rendering StartMenu with isOpen:', isStartMenuOpen)}
                 <div className={`startMenu ${!isStartMenuOpen ? 'hidden' : ''}`} data-start-menu>
                     <div className="startMenuSidebar">
                         start menu
@@ -577,6 +600,4 @@ const Desktop: React.FC = () => {
             </>
         </div>
     );
-};
-
-export default Desktop;
+}; export default Desktop;

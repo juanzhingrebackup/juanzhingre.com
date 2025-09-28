@@ -1,0 +1,241 @@
+.ishv4ra-container {
+    width: 100%;
+    height: 100%;
+    background: #c0c0c0;
+    padding: 10px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.album-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.album-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #808080;
+    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    transition: all 0.1s ease;
+    padding: 5px 8px;
+    text-align: left;
+    overflow: hidden;
+}
+
+.album-card:hover {
+    background: #f0f0f0;
+    transform: scale(1.01);
+}
+
+.album-image {
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+.album-image img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.folder-icon {
+    font-size: 35px;
+    color: #000080;
+    margin-right: 8px;
+}
+
+.album-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.album-name {
+    font-size: 15px;
+    color: #222222;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.photo-count {
+    font-size: 13px;
+    color: #666;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* Image Viewer Styles */
+.ishv4ra-container.image-viewer {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    color: #000000;
+}
+
+.image-viewer-header {
+    padding: 10px 15px;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.image-viewer-footer {
+    padding: 10px 15px;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-button {
+    padding: 8px 16px;
+    background: #c0c0c0;
+    color: #000000;
+    border: 1px solid #808080;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    cursor: pointer;
+    font-size: 18px;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    transition: all 0.1s ease;
+    min-width: 40px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-button:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.nav-button:active:not(:disabled) {
+    background: #a0a0a0;
+    box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff;
+}
+
+.nav-button:disabled {
+    background: #a0a0a0 !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff !important;
+}
+
+.nav-button.prev-button {
+    background: #4CAF50;
+    color: white;
+}
+
+.nav-button.prev-button:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.nav-button.prev-button:disabled {
+    background: #a0a0a0 !important;
+    color: #666666 !important;
+}
+
+.nav-button.next-button {
+    background: #4CAF50;
+    color: white;
+}
+
+.nav-button.next-button:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.nav-button.next-button:disabled {
+    background: #a0a0a0 !important;
+    color: #666666 !important;
+}
+
+.nav-button.close-button {
+    background: #f44336;
+    color: white;
+}
+
+.nav-button.close-button:hover:not(:disabled) {
+    background: #da190b;
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    overflow: auto;
+    background: #ffffff;
+}
+
+.image-wrapper {
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-image {
+    max-width: 500px;
+    max-height: 375px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border: 1px solid #808080;
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #000000;
+    font-size: 16px;
+    text-align: center;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+}
+
+.error-sub-message {
+    font-size: 12px;
+    margin-top: 8px;
+    color: #666666;
+}

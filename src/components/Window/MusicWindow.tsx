@@ -1,5 +1,5 @@
-import React from 'react';
 import './MusicWindow.css';
+import React from 'react';
 
 const MusicWindow: React.FC = () => {
     const musicServices = [
@@ -55,6 +55,4 @@ const MusicWindow: React.FC = () => {
             </div>
         </div>
     );
-};
-
-export default MusicWindow;
+}; export default MusicWindow;

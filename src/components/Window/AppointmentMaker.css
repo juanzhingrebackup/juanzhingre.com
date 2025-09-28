@@ -2,11 +2,14 @@
     height: 100%;
     padding: 20px;
     background: #c0c0c0;
-    font-family: Arial, sans-serif;
+    font-family: "Perfect DOS VGA 437",
+                 "Courier New",
+                 Courier,
+                 monospace;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     overflow: hidden;
 }
 
@@ -31,7 +34,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    flex: 1;
     justify-content: flex-start;
 }
 
@@ -42,9 +44,6 @@
     }
 }
 
-.fieldGroup {
-    /* Empty for now */
-}
 
 .label {
     display: block;
@@ -254,6 +253,23 @@
     width: auto;
 }
 
+/* Phone Input Container */
+.phoneInputContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.phoneCheckmark {
+    position: absolute;
+    right: 8px;
+    color: #4CAF50;
+    font-size: 16px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
 @media (max-width: 768px) {
     .contactField {
         flex-direction: column;
@@ -287,7 +303,6 @@
     font-weight: bold;
     align-self: center;
     box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.3);
-    margin-top: auto;
     min-height: auto;
     min-width: auto;
 }
@@ -309,6 +324,72 @@
 
 .scheduleButton:hover:not(:disabled) {
     background: #45a049;
+}
+
+/* Next Button Styles */
+.nextButton {
+    padding: 12px 24px;
+    background: #4CAF50;
+    color: white;
+    border: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    border-left: 2px solid #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    align-self: center;
+    box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.3);
+    min-height: auto;
+    min-width: auto;
+}
+
+.nextButton:disabled,
+.nextButton.disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.nextButton:hover:not(:disabled) {
+    background: #45a049;
+}
+
+/* Back Button Styles */
+.backButton {
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 2px solid #808080;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    align-self: flex-start;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.backButton:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.backButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+    .nextButton {
+        padding: 16px 32px;
+        font-size: 18px;
+        min-height: 56px;
+        min-width: 200px;
+    }
+    
+    .backButton {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
 }
 
 
@@ -364,4 +445,3 @@
         font-size: 18px;
     }
 }
-

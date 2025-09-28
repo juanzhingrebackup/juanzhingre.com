@@ -1,39 +1,25 @@
 {
   "functions": {
-    "api/appointment-confirmation/index.js": {
+    "api/database/appointments.js": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/sms/send-confirmation.js": {
       "memory": 256,
       "maxDuration": 10
     },
-    "api/business-notification/index.js": {
+    "api/sms/send-business-notification.js": {
       "memory": 256,
       "maxDuration": 10
     },
-    "api/edge-config/store/index.js": {
+    "api/email/send-sms-failure.js": {
       "memory": 256,
       "maxDuration": 10
     },
-    "api/edge-config/verify/[code]/index.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
-    "api/edge-config/confirm/[code]/index.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
-    "api/edge-config/availability/index.js": {
+    "api/email/send-business-notification.js": {
       "memory": 256,
       "maxDuration": 10
     }
   },
-  "regions": ["iad1"],
-  "headers": [
-    {
-      "source": "/api/(appointment-confirmation|business-notification|edge-config)/**",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://juanzhingre.com,https://www.juanzhingre.com,http://localhost:2509" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization" }
-      ]
-    }
-  ]
+  "regions": ["iad1"]
 }

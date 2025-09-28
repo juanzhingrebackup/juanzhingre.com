@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { photoData } from '../../data/photos';
+import React, { useState } from 'react';
 import './ImageViewer.css';
 
 interface Photo {
@@ -113,6 +113,4 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ collection, onOpenPhoto }) =>
             )}
         </div>
     );
-};
-
-export default ImageViewer;
+}; export default ImageViewer;

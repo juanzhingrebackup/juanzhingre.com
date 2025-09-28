@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
-import smsService from '../../services/smsService';
-import edgeConfigService from '../../services/edgeConfigService';
 import ConfirmationCode from './ConfirmationCode';
+import AddressAutocomplete from '../AddressAutocomplete/AddressAutocomplete';
+import DistanceValidator from '../DistanceValidator/DistanceValidator';
+import { generateConfirmationCode } from '../../utils/confirmationCode';
 import './AppointmentMaker.css';
 
 interface AppointmentMakerProps {
@@ -10,6 +10,12 @@ interface AppointmentMakerProps {
 }
 
 const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
+    // Business location - get from environment variable or use default
+    const BUSINESS_LOCATION = process.env.SERVICE_AREA || "Provo, UT";
+    
+    // Step management
+    const [currentStep, setCurrentStep] = useState<'cut-availability' | 'location-contact'>('cut-availability');
+    
     // Cut selection
     const [cutSelected, setCutSelected] = useState(false);
     
@@ -24,14 +30,17 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
+    const [selectedPlace, setSelectedPlace] = useState<any>(null);
+    const [isAddressValid, setIsAddressValid] = useState(true);
+    const [isAddressSelected, setIsAddressSelected] = useState(false);
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
     
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [smsEnabled, setSmsEnabled] = useState(true);
-    const [businessPhone] = useState(process.env.BUSINESS_PHONE || '');
     const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, 1 = next week, etc.
+    const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [confirmationData, setConfirmationData] = useState<any>(null);
-    const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
+    const [isPreviousWeekFullyBooked, setIsPreviousWeekFullyBooked] = useState(false);
 
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
@@ -67,21 +76,43 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     // Load appointment availability
     const loadAppointmentAvailability = async () => {
         try {
-            const startDate = weekDates[0].toISOString().split('T')[0];
-            const endDate = weekDates[5].toISOString().split('T')[0];
+            // Get all appointments from database
+            const response = await fetch('/api/database/appointments');
             
-            const result = await edgeConfigService.getAppointmentAvailability(startDate, endDate);
-            if (result.success && result.slots) {
-                const bookedSet = new Set();
-                result.slots.forEach(slot => {
-                    if (slot.status === 'confirmed' || slot.status === 'pending') {
-                        bookedSet.add(`${slot.date}-${slot.time}`);
-                    }
+            if (!response.ok) {
+                console.error('Database API error:', response.status, response.statusText);
+                setBookedSlots(new Set<string>());
+                return;
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Convert appointments to booked slots format
+                const bookedSlotsSet = new Set<string>();
+                result.appointments.forEach((appointment: any) => {
+                    // Use the stored day and date directly from the database
+                    const slotKey = `${appointment.date}-${appointment.time}`;
+                    bookedSlotsSet.add(slotKey);
                 });
-                setBookedSlots(bookedSet);
+                
+                setBookedSlots(bookedSlotsSet);
+                
+                // Clean up old appointments (older than 7 days)
+                try {
+                    await fetch('/api/database/appointments', {
+                        method: 'DELETE'
+                    });
+                } catch (cleanupError) {
+                    console.warn('Failed to clean up old appointments:', cleanupError);
+                }
+            } else {
+                console.error('Failed to load appointments:', result.error);
+                setBookedSlots(new Set<string>());
             }
         } catch (error) {
-            console.error('Failed to load appointment availability:', error);
+            console.error('Error loading appointments:', error);
+            setBookedSlots(new Set<string>());
         }
     };
 
@@ -89,6 +120,18 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     React.useEffect(() => {
         loadAppointmentAvailability();
     }, [weekOffset]);
+
+    // Auto-advance to next week if current week is fully booked
+    React.useEffect(() => {
+        if (isWeekFullyBooked() && weekOffset === 0) {
+            setWeekOffset(1);
+        }
+    }, [bookedSlots, weekOffset]);
+
+    // Check previous week availability whenever bookedSlots or weekOffset changes
+    React.useEffect(() => {
+        checkPreviousWeekAvailability();
+    }, [bookedSlots, weekOffset]);
     
     // Check if a day is in the past
     const isDayInPast = (dayIndex: number) => {
@@ -126,9 +169,66 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     // Check if a time slot is booked
     const isTimeBooked = (dayIndex: number, time: string) => {
         const dayDate = weekDates[dayIndex];
-        const dateString = dayDate.toISOString().split('T')[0];
+        const dateString = formatDate(dayDate); // Use the same format as database (M/D)
         const slotKey = `${dateString}-${time}`;
         return bookedSlots.has(slotKey);
+    };
+
+    // Check if all times for a day are unavailable
+    const isDayFullyBooked = (dayIndex: number) => {
+        const day = days[dayIndex];
+        const timeSlots = getTimeSlots(day);
+        
+        return timeSlots.every(time => {
+            const isPast = isTimeInPast(dayIndex, time);
+            const isBooked = isTimeBooked(dayIndex, time);
+            return isPast || isBooked;
+        });
+    };
+
+    // Check if all days in current week are fully booked
+    const isWeekFullyBooked = () => {
+        return days.every((_, dayIndex) => isDayFullyBooked(dayIndex));
+    };
+
+    // Check if all days in previous week are fully booked
+    const checkPreviousWeekAvailability = () => {
+        if (weekOffset === 0) {
+            setIsPreviousWeekFullyBooked(false);
+            return;
+        }
+        
+        // Calculate the previous week dates
+        const previousWeekOffset = weekOffset - 1;
+        const startOfPreviousWeek = new Date(now);
+        const dayOfWeek = currentDay === 0 ? 6 : currentDay - 1;
+        startOfPreviousWeek.setDate(now.getDate() - dayOfWeek + (previousWeekOffset * 7));
+        
+        const previousWeekDates: Date[] = [];
+        for (let i = 0; i < 6; i++) {
+            const date = new Date(startOfPreviousWeek);
+            date.setDate(startOfPreviousWeek.getDate() + i);
+            previousWeekDates.push(date);
+        }
+        
+        // Check if all days in previous week would be fully booked
+        const isFullyBooked = days.every((day, dayIndex) => {
+            const dayDate = previousWeekDates[dayIndex];
+            const isPast = dayDate < new Date();
+            const timeSlots = getTimeSlots(day);
+            
+            // If it's in the past, consider it "fully booked"
+            if (isPast) return true;
+            
+            // Check if all time slots are booked
+            return timeSlots.every(time => {
+                const dateString = formatDate(dayDate); // Use the same format as database (M/D)
+                const slotKey = `${dateString}-${time}`;
+                return bookedSlots.has(slotKey);
+            });
+        });
+        
+        setIsPreviousWeekFullyBooked(isFullyBooked);
     };
     
     const getTimeSlots = (day: string) => {
@@ -140,8 +240,22 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     };
 
     const validatePhone = (phone: string) => {
-        const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-        return phoneRegex.test(phone.replace(/[\s\-()]/g, ''));
+        // Remove all non-digit characters except +
+        const cleanPhone = phone.replace(/[\s\-().]/g, '');
+        
+        // Check if it's a valid US phone number (10 digits or 11 digits starting with 1)
+        const phoneRegex = /^(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/;
+        const isValid = phoneRegex.test(phone);
+        
+        // Also check length (10-11 digits after cleaning)
+        const digitCount = cleanPhone.replace(/^\+?1/, '').length;
+        const hasCorrectLength = digitCount === 10;
+        
+        return isValid && hasCorrectLength;
+    };
+
+    const isFirstStepComplete = () => {
+        return cutSelected && selectedDay && selectedTime;
     };
 
     const isFormComplete = () => {
@@ -149,9 +263,22 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         const hasAvailability = selectedDay && selectedTime;
         const hasLocation = isHouseCall !== null;
         const hasContact = name && phone && validatePhone(phone);
-        const hasAddress = !isHouseCall || address;
+        
+        // For house calls, address must be valid AND within service area
+        // For "at location", no address validation needed
+        const hasAddress = !isHouseCall || (address && isAddressValid);
         
         return hasCut && hasAvailability && hasLocation && hasContact && hasAddress;
+    };
+
+    const handleNext = () => {
+        if (isFirstStepComplete()) {
+            setCurrentStep('location-contact');
+        }
+    };
+
+    const handleBack = () => {
+        setCurrentStep('cut-availability');
     };
 
     const handleSchedule = async () => {
@@ -164,6 +291,9 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                 const selectedDate = weekDates[selectedDayIndex];
                 const formattedDate = formatDate(selectedDate);
                 
+                // Generate confirmation code
+                const confirmationCode = generateConfirmationCode();
+                
                 const appointmentDetails = {
                     name: name,
                     phone: phone,
@@ -172,91 +302,132 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     date: formattedDate,
                     time: selectedTime,
                     location: isHouseCall ? `House Call (+$5) - ${address}` : 'At Location',
-                    address: isHouseCall ? address : undefined
+                    address: isHouseCall ? address : undefined,
+                    confirmationCode: confirmationCode
                 };
 
-                const templateParams = {
-                    name: name,
-                    phone: phone,
-                    cut: 'Volume 1 Cut',
-                    day: selectedDay,
-                    time: selectedTime,
-                    location: isHouseCall ? `House Call (+$5) - ${address}` : 'At Location',
-                    message: `New appointment request:\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nContact Info:\nName: ${name}\nPhone: ${phone}`
-                };
+                // Send SMS confirmation to customer
+                const smsResponse = await fetch('/api/sms/send-confirmation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ appointmentDetails })
+                });
 
-                // Send email notification
-                await emailjs.send(
-                    'service_li6pxqa',
-                    'template_i1lmcnm',
-                    templateParams,
-                    'gyiS7YPcgxpQGxBch'
-                );
-
-                // Send SMS notifications if enabled
-                if (smsEnabled) {
-                    try {
-                        // Send confirmation SMS to customer
-                        const customerSmsResult = await smsService.sendAppointmentConfirmation(appointmentDetails);
-                        if (customerSmsResult.success && customerSmsResult.confirmationCode) {
-                            // Store confirmation data in Edge Config
-                            const confirmationData = {
-                                confirmationCode: customerSmsResult.confirmationCode,
-                                appointmentDetails: appointmentDetails,
-                                status: 'pending',
-                                createdAt: new Date().toISOString(),
-                                expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 minutes
-                            };
-
-                            await edgeConfigService.storeConfirmation(confirmationData);
-                            
-                            // Show confirmation code window
-                            setConfirmationData(confirmationData);
-                            setShowConfirmation(true);
-                            return; // Don't show success message yet
-                        } else {
-                            console.warn('Customer SMS failed:', customerSmsResult.error);
-                        }
-
-                        // Send notification SMS to business owner
-                        if (businessPhone) {
-                            const businessSmsResult = await smsService.sendBusinessNotification(appointmentDetails, businessPhone);
-                            if (!businessSmsResult.success) {
-                                console.warn('Business SMS failed:', businessSmsResult.error);
-                            }
-                        }
-                    } catch (smsError) {
-                        console.warn('SMS notification failed:', smsError);
-                        // Don't fail the entire appointment if SMS fails
-                    }
+                if (!smsResponse.ok) {
+                    console.error('SMS API error:', smsResponse.status, smsResponse.statusText);
+                    const businessPhone = process.env.BUSINESS_PHONE || 'the barber';
+                    alert(`SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`);
+                    return;
                 }
 
-                alert(`Appointment scheduled!\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nI'll reach out to you soon!${smsEnabled ? '\n\nYou should receive a confirmation text shortly.' : ''}`);
+                const smsResult = await smsResponse.json();
+
+                if (smsResult.success) {
+                    // SMS sent successfully, show confirmation window
+                    const confirmationData = {
+                        confirmationCode: confirmationCode,
+                        appointmentDetails: appointmentDetails,
+                        status: 'pending' as const,
+                        createdAt: new Date().toISOString(),
+                        expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 minutes
+                    };
+
+                    setConfirmationData(confirmationData);
+                    setShowConfirmation(true);
+                } else {
+                    // SMS failed, show error and suggest contacting barber
+                    const businessPhone = process.env.BUSINESS_PHONE || 'the barber';
+                    alert(`SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`);
+                    
+                    // Send error email to dev
+                    try {
+                        await fetch('/api/email/send-sms-failure', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ 
+                                appointmentDetails, 
+                                smsError: smsResult.error 
+                            })
+                        });
+                    } catch (emailError) {
+                        console.error('Failed to send error email:', emailError);
+                    }
+                }
             } catch (error) {
                 console.error('Appointment error:', error);
                 alert('Appointment failed to schedule!');
             } finally {
                 setIsSubmitting(false);
             }
-            
-            // Reset form
-            setCutSelected(false);
-            setSelectedDay('');
-            setSelectedTime('');
-            setIsHouseCall(false);
-            setName('');
-            setPhone('');
-            setAddress('');
         } else {
             alert('Please fill in all required fields');
         }
     };
 
-    const handleConfirmationSuccess = (code: string) => {
+    const handleConfirmationSuccess = async (code: string) => {
         setShowConfirmation(false);
-        alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nI'll reach out to you soon!`);
+        
+        try {
+            // Store appointment in database
+            const appointmentData = {
+                ...confirmationData.appointmentDetails,
+                confirmationCode: code
+            };
+
+            const dbResponse = await fetch('/api/database/appointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(appointmentData)
+            });
+
+            const dbResult = await dbResponse.json();
+
+            if (dbResult.success) {
+                
+                // Send SMS notification to business
+                try {
+                    await fetch('/api/sms/send-business-notification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ appointmentDetails: appointmentData })
+                    });
+                } catch (smsError) {
+                    console.error('Failed to send business SMS:', smsError);
+                }
+
+                // Send email notification to business
+                try {
+                    await fetch('/api/email/send-business-notification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ appointmentDetails: appointmentData })
+                    });
+                } catch (emailError) {
+                    console.error('Failed to send business email:', emailError);
+                }
+
+                alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nI'll reach out to you soon!`);
+            } else {
+                console.error('Database error:', dbResult.error);
+                alert('Appointment confirmed but there was an error saving to database. Please contact us directly.');
+            }
+        } catch (error) {
+            console.error('Error storing appointment:', error);
+            alert('Appointment confirmed but there was an error saving to database. Please contact us directly.');
+        }
         
         // Reset form
+        setCurrentStep('cut-availability');
         setCutSelected(false);
         setSelectedDay('');
         setSelectedTime('');
@@ -264,11 +435,45 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         setName('');
         setPhone('');
         setAddress('');
+        setSelectedPlace(null);
+        setIsAddressValid(true);
+        setIsAddressSelected(false);
+        setIsPhoneValid(false);
+        setConfirmationData(null);
     };
 
     const handleConfirmationClose = () => {
         setShowConfirmation(false);
         setConfirmationData(null);
+    };
+
+    const handleAddressChange = (newAddress: string) => {
+        setAddress(newAddress);
+        if (!newAddress) {
+            setSelectedPlace(null);
+            setIsAddressValid(true);
+            setIsAddressSelected(false);
+        }
+    };
+
+    const handlePlaceSelect = (place: any) => {
+        setSelectedPlace(place);
+        setIsAddressSelected(true);
+        // Address validation will be handled by DistanceValidator
+    };
+
+    const handleAddressSelected = (isSelected: boolean) => {
+        setIsAddressSelected(isSelected);
+    };
+
+    const handleAddressValidation = (isValid: boolean, distance?: number) => {
+        setIsAddressValid(isValid);
+    };
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newPhone = e.target.value;
+        setPhone(newPhone);
+        setIsPhoneValid(validatePhone(newPhone));
     };
 
     // Show confirmation window if needed
@@ -277,7 +482,8 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
             <ConfirmationCode
                 onClose={handleConfirmationClose}
                 onConfirm={handleConfirmationSuccess}
-                appointmentDetails={confirmationData}
+                generatedCode={confirmationData.confirmationCode}
+                appointmentDetails={confirmationData.appointmentDetails}
             />
         );
     }
@@ -289,171 +495,226 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
             </h1>
             
             <div className="formContainer">
-                {/* Cut Selection */}
-                <div className="fieldGroup">
-                    <label className="label">cut:</label>
-                    <div className="cutContainer">
-                        <button
-                            className={`cutButton ${cutSelected ? 'selected' : ''}`}
-                            onClick={() => setCutSelected(!cutSelected)}
-                            disabled={isSubmitting}
-                        >
-                            volume 1 cut - $20
-                        </button>
-                    </div>
-                </div>
+                {currentStep === 'cut-availability' && (
+                    <>
+                        {/* Cut Selection */}
+                        <div className="fieldGroup">
+                            <label className="label">cut:</label>
+                            <div className="cutContainer">
+                                <button
+                                    className={`cutButton ${cutSelected ? 'selected' : ''}`}
+                                    onClick={() => setCutSelected(!cutSelected)}
+                                    disabled={isSubmitting}
+                                >
+                                    volume 1 cut - $20
+                                </button>
+                            </div>
+                        </div>
 
-                {/* Availability Section - Only show if cut is selected */}
-                {cutSelected && (
-                    <div className="fieldGroup">
-                        <label className="label">availability:</label>
-                        <div className="availabilityContainer">
-                            <div className="daysColumn">
-                                {days.map((day, index) => {
-                                    const isPast = isDayInPast(index);
-                                    return (
-                                        <button
-                                            key={day}
-                                            className={`dayButton ${selectedDay === day ? 'selected' : ''} ${isPast ? 'disabled' : ''}`}
-                                            onClick={() => {
-                                                if (!isPast) {
-                                                    setSelectedDay(day);
-                                                    setSelectedTime(''); // Reset time when day changes
-                                                }
-                                            }}
-                                            disabled={isSubmitting || isPast}
-                                        >
-                                            {day} {formatDate(weekDates[index])}
-                                        </button>
-                                    );
-                                })}
-                                
-                                {/* Navigation buttons */}
-                                <div className="weekNavigation">
-                                    <button
-                                        className="navButton"
-                                        onClick={() => setWeekOffset(weekOffset - 1)}
-                                        disabled={weekOffset === 0 || isSubmitting}
-                                        title="Previous Week"
-                                    >
-                                        ←
-                                    </button>
-                                    <button
-                                        className="navButton"
-                                        onClick={() => setWeekOffset(weekOffset + 1)}
-                                        disabled={isSubmitting}
-                                        title="Next Week"
-                                    >
-                                        →
-                                    </button>
+                        {/* Availability Section - Only show if cut is selected */}
+                        {cutSelected && (
+                            <div className="fieldGroup">
+                                <label className="label">availability:</label>
+                                <div className="availabilityContainer">
+                                    <div className="daysColumn">
+                                        {days.map((day, index) => {
+                                            const isPast = isDayInPast(index);
+                                            const isFullyBooked = isDayFullyBooked(index);
+                                            const isDisabled = isPast || isFullyBooked;
+                                            
+                                            return (
+                                                <button
+                                                    key={day}
+                                                    className={`dayButton ${selectedDay === day ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                                    onClick={() => {
+                                                        if (!isDisabled) {
+                                                            setSelectedDay(day);
+                                                            setSelectedTime(''); // Reset time when day changes
+                                                        }
+                                                    }}
+                                                    disabled={isSubmitting || isDisabled}
+                                                    title={isFullyBooked ? 'All time slots are booked for this day' : ''}
+                                                >
+                                                    {day} {formatDate(weekDates[index])}
+                                                </button>
+                                            );
+                                        })}
+                                        
+                                        {/* Navigation buttons */}
+                                        <div className="weekNavigation">
+                                            <button
+                                                className={`navButton ${isPreviousWeekFullyBooked ? 'disabled' : ''}`}
+                                                onClick={() => {
+                                                    setWeekOffset(weekOffset - 1);
+                                                    setSelectedDay('');
+                                                    setSelectedTime('');
+                                                }}
+                                                disabled={weekOffset === 0 || isSubmitting || isPreviousWeekFullyBooked}
+                                                title={isPreviousWeekFullyBooked ? "Previous week is fully booked" : "Previous Week"}
+                                            >
+                                                ←
+                                            </button>
+                                            <button
+                                                className="navButton"
+                                                onClick={() => {
+                                                    setWeekOffset(weekOffset + 1);
+                                                    setSelectedDay('');
+                                                    setSelectedTime('');
+                                                }}
+                                                disabled={isSubmitting}
+                                                title="Next Week"
+                                            >
+                                                →
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="timesColumn">
+                                        {selectedDay && getTimeSlots(selectedDay).map(time => {
+                                            const selectedDayIndex = days.indexOf(selectedDay);
+                                            const isPast = isTimeInPast(selectedDayIndex, time);
+                                            const isBooked = isTimeBooked(selectedDayIndex, time);
+                                            const isDisabled = isPast || isBooked;
+                                            return (
+                                                <button
+                                                    key={time}
+                                                    className={`timeButton ${selectedTime === time ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                                    onClick={() => {
+                                                        if (!isDisabled) {
+                                                            setSelectedTime(time);
+                                                        }
+                                                    }}
+                                                    disabled={isSubmitting || isDisabled}
+                                                    title={isBooked ? 'This time slot is already booked' : ''}
+                                                >
+                                                    {time}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="timesColumn">
-                                {selectedDay && getTimeSlots(selectedDay).map(time => {
-                                    const selectedDayIndex = days.indexOf(selectedDay);
-                                    const isPast = isTimeInPast(selectedDayIndex, time);
-                                    const isBooked = isTimeBooked(selectedDayIndex, time);
-                                    const isDisabled = isPast || isBooked;
-                                    return (
-                                        <button
-                                            key={time}
-                                            className={`timeButton ${selectedTime === time ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
-                                            onClick={() => {
-                                                if (!isDisabled) {
-                                                    setSelectedTime(time);
-                                                }
-                                            }}
-                                            disabled={isSubmitting || isDisabled}
-                                            title={isBooked ? 'This time slot is already booked' : ''}
-                                        >
-                                            {time}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
+                        )}
+
+                        {/* Next Button */}
+                        <button
+                            onClick={handleNext}
+                            disabled={!isFirstStepComplete() || isSubmitting}
+                            className={`nextButton ${!isFirstStepComplete() ? 'disabled' : ''}`}
+                            title={!isFirstStepComplete() ? 'Please select a cut, day, and time' : ''}
+                        >
+                            Next
+                        </button>
+                    </>
                 )}
 
-                {/* Location Section - Only show if day and time are selected */}
-                {cutSelected && selectedDay && selectedTime && (
-                    <div className="fieldGroup">
-                        <label className="label">location:</label>
-                        <div className="locationContainer">
-                            <button
-                                className={`locationButton ${isHouseCall ? 'selected' : ''}`}
-                                onClick={() => setIsHouseCall(true)}
-                                disabled={isSubmitting}
-                            >
-                                house call (+$5)
-                            </button>
-                            <button
-                                className={`locationButton ${!isHouseCall ? 'selected' : ''}`}
-                                onClick={() => setIsHouseCall(false)}
-                                disabled={isSubmitting}
-                            >
-                                at location
-                            </button>
-                        </div>
-                    </div>
-                )}
+                {currentStep === 'location-contact' && (
+                    <>
+                        {/* Back Button */}
+                        <button
+                            onClick={handleBack}
+                            disabled={isSubmitting}
+                            className="backButton"
+                        >
+                            ← Back
+                        </button>
 
-                {/* Contact Info Section - Only show if location is selected */}
-                {cutSelected && selectedDay && selectedTime && (
-                    <div className="fieldGroup">
-                        <div className="contactRow">
-                            <div className="contactField">
-                                <label className="label">name:</label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                        {/* Location Section */}
+                        <div className="fieldGroup">
+                            <label className="label">location:</label>
+                            <div className="locationContainer">
+                                <button
+                                    className={`locationButton ${isHouseCall ? 'selected' : ''}`}
+                                    onClick={() => setIsHouseCall(true)}
                                     disabled={isSubmitting}
-                                    className="input"
-                                />
-                            </div>
-                            <div className="contactField">
-                                <label className="label">phone number:</label>
-                                <input
-                                    type="tel"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                >
+                                    house call (+$5)
+                                </button>
+                                <button
+                                    className={`locationButton ${!isHouseCall ? 'selected' : ''}`}
+                                    onClick={() => setIsHouseCall(false)}
                                     disabled={isSubmitting}
-                                    className="input"
-                                    placeholder="Enter valid phone number"
-                                />
-                                {phone && !validatePhone(phone) && (
-                                    <span className="errorText">Please enter a valid phone number</span>
-                                )}
+                                >
+                                    at location
+                                </button>
                             </div>
-                            {isHouseCall && (
+                        </div>
+
+                        {/* Contact Info Section */}
+                        <div className="fieldGroup">
+                            <div className="contactRow">
                                 <div className="contactField">
-                                    <label className="label">address:</label>
+                                    <label className="label">name:</label>
                                     <input
                                         type="text"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
                                         disabled={isSubmitting}
                                         className="input"
-                                        placeholder="Enter your address"
                                     />
                                 </div>
-                            )}
+                                <div className="contactField">
+                                    <label className="label">phone number:</label>
+                                    <div className="phoneInputContainer">
+                                        <input
+                                            type="tel"
+                                            value={phone}
+                                            onChange={handlePhoneChange}
+                                            disabled={isSubmitting}
+                                            className="input"
+                                            placeholder="Enter valid phone number"
+                                        />
+                                        {isPhoneValid && (
+                                            <span className="phoneCheckmark">✓</span>
+                                        )}
+                                    </div>
+                                    {phone && !isPhoneValid && (
+                                        <span className="errorText">Please enter a valid phone number</span>
+                                    )}
+                                </div>
+                                {isHouseCall && (
+                                    <DistanceValidator
+                                        address={address}
+                                        businessLocation={BUSINESS_LOCATION}
+                                        onValidationResult={handleAddressValidation}
+                                        isAddressSelected={isAddressSelected}
+                                    />
+                                )}
+                                {isHouseCall && (
+                                    <div className="contactField">
+                                        <label className="label">address:</label>
+                                        <AddressAutocomplete
+                                            value={address}
+                                            onChange={handleAddressChange}
+                                            onPlaceSelect={handlePlaceSelect}
+                                            onAddressSelected={handleAddressSelected}
+                                            isValid={isAddressValid && isAddressSelected}
+                                            disabled={isSubmitting}
+                                            placeholder="Enter your address"
+                                            className="input"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
 
-                {/* Schedule Button */}
-                <button
-                    onClick={handleSchedule}
-                    disabled={!isFormComplete() || isSubmitting}
-                    className={`scheduleButton ${!isFormComplete() ? 'disabled' : ''}`}
-                >
-                    {isSubmitting ? 'Scheduling...' : 'Schedule'}
-                </button>
+                        {/* Schedule Button */}
+                        <button
+                            onClick={handleSchedule}
+                            disabled={!isFormComplete() || isSubmitting}
+                            className={`scheduleButton ${!isFormComplete() ? 'disabled' : ''}`}
+                            title={
+                                isHouseCall && address && !isAddressValid 
+                                    ? 'Address is outside service area - please contact us directly'
+                                    : !isFormComplete() 
+                                        ? 'Please fill in all required fields'
+                                        : ''
+                            }
+                        >
+                            {isSubmitting ? 'Scheduling...' : 'Schedule'}
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );
-};
-
-export default AppointmentMaker;
+}; export default AppointmentMaker;

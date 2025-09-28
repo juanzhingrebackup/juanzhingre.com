@@ -216,6 +216,4 @@ const Icon: React.FC<IconProps> = ({ icon, onClick, onMove, isSelected = false }
             <div className="iconLabel">{icon.name}</div>
         </div>
     );
-};
-
-export default Icon;
+}; export default Icon;

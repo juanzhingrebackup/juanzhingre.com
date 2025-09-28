@@ -16,6 +16,12 @@
     height: 100vh !important;
 }
 
+/* Make appointment window taller by default */
+.windowContainer[data-window-type="appointment"] {
+    height: 80vh !important;
+    min-height: 700px;
+}
+
 .windowContainer.dragging {
     transition: none;
     will-change: left, top;

@@ -71,7 +71,7 @@ const DemoPlayer: React.FC = () => {
                             <th 
                                 className={`headerCell sortable`}
                                 onClick={() => handleSort('name')}
-                                style={{ width: '50%' }}
+                                style={{ width: '15%' }}
                             >
                                 Song Name
                                 {sortBy === 'name' && (
@@ -130,6 +130,4 @@ const DemoPlayer: React.FC = () => {
             />
         </div>
     );
-};
-
-export default DemoPlayer;
+}; export default DemoPlayer;

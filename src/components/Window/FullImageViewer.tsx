@@ -88,11 +88,6 @@ const FullImageViewer: React.FC<FullImageViewerProps> = ({ photo, onClose, onNav
                         src={photo.path}
                         alt={photo.name}
                         className="image"
-                        onLoad={(e) => {
-                            // Log image dimensions for debugging
-                            const img = e.target as HTMLImageElement;
-                            console.log(`Image loaded: ${photo.name} - ${img.naturalWidth}x${img.naturalHeight}`);
-                        }}
                         onError={(e) => {
                             // Fallback for failed images
                             const img = e.target as HTMLImageElement;
