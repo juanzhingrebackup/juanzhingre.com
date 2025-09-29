@@ -194,4 +194,5 @@ class SMSService {
     }
 }
 
-export default new SMSService(); // By John Michael
+const smsService = new SMSService();
+export default smsService; // By John Michael
