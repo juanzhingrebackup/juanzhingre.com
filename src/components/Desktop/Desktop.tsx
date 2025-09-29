@@ -61,7 +61,14 @@ const Desktop: React.FC = () => {
                 // Reposition icons horizontally at the top for mobile
                 const iconSpacing = Math.min(90, (window.innerWidth - 40) / 4);
                 setDesktopState(prev => ({ 
-                    ...prev, icons: prev.icons.map((icon, index) => ({ ...icon, position: { x: 20 + (index * iconSpacing), y: 20 }}))
+                    ...prev, icons: prev.icons.map((icon, index) => {
+                        let xPosition = 20 + (index * iconSpacing);
+                        // Move ishv4ra icon (index 3) more to the right
+                        if (index === 3) {
+                            xPosition += 10;
+                        }
+                        return { ...icon, position: { x: xPosition, y: 20 }};
+                    })
                 }));
             } else {
                 // Reset to original vertical layout for desktop
@@ -148,12 +155,13 @@ const Desktop: React.FC = () => {
     }, []);
 
     const handleOpenCredits = useCallback(() => {
+        const isMobile = window.innerWidth <= 768;
         const newWindow: WindowType = {
             id: 'credits-window',
             title: 'Origins',
             type: 'app',
-            position: { x: 300, y: 200 },
-            size: { width: 400, height: 300 },
+            position: isMobile ? { x: 20, y: 20 } : { x: 300, y: 200 },
+            size: isMobile ? { width: Math.min(400, window.innerWidth - 40), height: Math.min(350, window.innerHeight - 100) } : { width: 400, height: 300 },
             isMinimized: false,
             isMaximized: false,
             isOpen: true,

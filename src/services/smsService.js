@@ -150,4 +150,6 @@ class SMSService {
         const formattedPhone = this.formatPhoneNumber(phone);
         return await this.sendSMS(formattedPhone, message);
     }
-} export default new SMSService(); // By John Michael
+}
+
+export default new SMSService(); // By John Michael
