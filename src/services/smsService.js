@@ -27,7 +27,11 @@ class SMSService {
 
 
     async sendSMS(phone, message) {
-        try {            
+        try {
+            console.log('SMS Service: Sending SMS to', phone);
+            console.log('SMS Service: API Key present:', !!this.apiKey);
+            console.log('SMS Service: Base URL:', this.baseUrl);
+            
             const response = await axios.post(`${this.baseUrl}/text`, {
                 phone: phone,
                 message: message,
@@ -38,6 +42,9 @@ class SMSService {
                 }
             });
 
+            console.log('SMS Service: Response status:', response.status);
+            console.log('SMS Service: Response data:', response.data);
+
             return {
                 success: response.data.success,
                 textId: response.data.textId,
@@ -45,6 +52,11 @@ class SMSService {
             };
         } catch (error) {
             console.error('SMS Service Error:', error.message);
+            console.error('SMS Service Error Details:', {
+                code: error.code,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             return {
                 success: false,
                 error: error.message
