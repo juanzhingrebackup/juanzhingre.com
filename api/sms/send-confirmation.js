@@ -18,10 +18,17 @@ export default async function handler(req, res) {
         console.log('Platform:', process.platform);
         
         // Import the service inside the function to avoid module loading issues
-        const smsService = (await import('../../src/services/smsService.js')).default;
+        const smsServiceModule = await import('../../src/services/smsService.js');
+        console.log('SMS Service module:', smsServiceModule);
+        console.log('SMS Service module keys:', Object.keys(smsServiceModule));
+        console.log('SMS Service module default:', smsServiceModule.default);
+        
+        const smsService = smsServiceModule.default;
         console.log('SMS Service imported successfully:', !!smsService);
         console.log('SMS Service type:', typeof smsService);
+        console.log('SMS Service constructor name:', smsService?.constructor?.name);
         console.log('SMS Service methods:', smsService ? Object.getOwnPropertyNames(smsService) : 'No service');
+        console.log('SMS Service prototype methods:', smsService ? Object.getOwnPropertyNames(Object.getPrototypeOf(smsService)) : 'No prototype');
         console.log('SMS Service sendAppointmentConfirmation method:', typeof smsService?.sendAppointmentConfirmation);
         
         console.log('=== PARSING REQUEST BODY ===');
@@ -58,7 +65,19 @@ export default async function handler(req, res) {
         console.log('SMS Service object before call:', JSON.stringify(smsService, null, 2));
         console.log('About to call sendAppointmentConfirmation with:', JSON.stringify(appointmentDetails, null, 2));
         
-        const result = await smsService.sendAppointmentConfirmation(appointmentDetails);
+        // Try to call the method, but handle the case where it might not exist
+        let result;
+        if (typeof smsService.sendAppointmentConfirmation === 'function') {
+            result = await smsService.sendAppointmentConfirmation(appointmentDetails);
+        } else {
+            console.error('sendAppointmentConfirmation is not a function, trying alternative approach');
+            // Fallback: try to call it directly on the prototype
+            if (smsService.constructor && smsService.constructor.prototype.sendAppointmentConfirmation) {
+                result = await smsService.constructor.prototype.sendAppointmentConfirmation.call(smsService, appointmentDetails);
+            } else {
+                throw new Error('sendAppointmentConfirmation method not found on SMS service');
+            }
+        }
         console.log('SMS service result:', JSON.stringify(result, null, 2));
         console.log('Result success:', result?.success);
         console.log('Result error:', result?.error);
