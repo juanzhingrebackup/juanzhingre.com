@@ -29,7 +29,7 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [currentCollection, setCurrentCollection] = useState<PhotoCollection | null>(null);
     const [currentPhoto, setCurrentPhoto] = useState<Photo | null>(null);
-    const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
+    // preloadedImages state removed - all images are now preloaded globally
 
     // Function to get the first photo from a collection
     const getFirstPhotoFromCollection = (collectionId: string) => {
@@ -42,57 +42,9 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
         return photoData.filter(photo => photo.collection === collectionId);
     };
 
-    // Preload all collection cover images
-    useEffect(() => {
-        const preloadImage = (src: string) => {
-            const img = new Image();
-            img.src = src;
-        };
+    // Note: Image preloading is now handled globally in Desktop component
 
-        // Preload all collection cover images
-        collections.forEach(collection => {
-            const firstPhoto = getFirstPhotoFromCollection(collection.id);
-            if (firstPhoto) {
-                preloadImage(firstPhoto.path);
-            }
-        });
-    }, [collections]);
-
-    // Preload adjacent images when in image viewer
-    useEffect(() => {
-        if (viewMode === 'imageViewer' && currentPhoto) {
-            const photos = getPhotosForCollection(currentPhoto.collection);
-            const currentIndex = photos.findIndex(p => p.id === currentPhoto.id);
-            
-            const preloadImage = (src: string) => {
-                const img = new Image();
-                img.onload = () => {
-                    setPreloadedImages(prev => {
-                        const newSet = new Set(prev);
-                        newSet.add(src);
-                        return newSet;
-                    });
-                };
-                img.src = src;
-            };
-
-            // Preload previous image
-            if (currentIndex > 0) {
-                const prevPhoto = photos[currentIndex - 1];
-                if (prevPhoto && !preloadedImages.has(prevPhoto.path)) {
-                    preloadImage(prevPhoto.path);
-                }
-            }
-
-            // Preload next image
-            if (currentIndex < photos.length - 1) {
-                const nextPhoto = photos[currentIndex + 1];
-                if (nextPhoto && !preloadedImages.has(nextPhoto.path)) {
-                    preloadImage(nextPhoto.path);
-                }
-            }
-        }
-    }, [viewMode, currentPhoto, preloadedImages]);
+    // Note: All images are now preloaded globally, so no need for adjacent preloading
 
     const handleCollectionClick = useCallback((collection: PhotoCollection) => {
         const now = Date.now();
@@ -135,7 +87,6 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
         const hasNext = currentIndex < photos.length - 1;
         
         // Debug logging
-        console.log('Current index:', currentIndex, 'Total photos:', photos.length, 'Has prev:', hasPrev, 'Has next:', hasNext);
 
         return (
             <div className="ishv4ra-container image-viewer">
@@ -176,20 +127,20 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
                             disabled={!hasPrev}
                             className="nav-button prev-button"
                         >
-                            <FaChevronLeft />
+                            {FaChevronLeft({})}
                         </button>
                         <button 
                             onClick={() => handleNavigate('next')}
                             disabled={!hasNext}
                             className="nav-button next-button"
                         >
-                            <FaChevronRight />
+                            {FaChevronRight({})}
                         </button>
                         <button 
                             onClick={handleBackToGrid}
                             className="nav-button close-button"
                         >
-                            <FaTimes />
+                            {FaTimes({})}
                         </button>
                     </div>
                 </div>
@@ -225,7 +176,6 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
                             </div>
                             <div className="album-info">
                                 <div className="album-name">{collection.name}</div>
-                                <div className="photo-count">{collection.photoCount} photos</div>
                             </div>
                         </div>
                     );

@@ -416,7 +416,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     console.error('Failed to send business email:', emailError);
                 }
 
-                alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nI'll reach out to you soon!`);
+                alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}`);
             } else {
                 console.error('Database error:', dbResult.error);
                 alert('Appointment confirmed but there was an error saving to database. Please contact us directly.');

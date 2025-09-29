@@ -1,92 +1,95 @@
 .ishv4ra-container {
     width: 100%;
     height: 100%;
-    background: #c0c0c0;
-    padding: 10px;
+    background: #ffffff;
+    padding: 20px;
     margin: 0;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .album-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 15px;
     width: 100%;
     height: 100%;
-    padding: 0;
+    padding: 15px;
     margin: 0;
+    justify-items: center;
+    align-items: center;
 }
 
 .album-card {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     cursor: pointer;
-    background: #ffffff;
-    border: 1px solid #808080;
-    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     transition: all 0.1s ease;
-    padding: 5px 8px;
-    text-align: left;
+    padding: 0;
+    text-align: center;
     overflow: hidden;
+    width: 100%;
+    height: 100%;
+    max-width: 180px;
+    max-height: 200px;
 }
 
 .album-card:hover {
-    background: #f0f0f0;
-    transform: scale(1.01);
+    transform: scale(1.05);
 }
 
 .album-image {
     flex-shrink: 0;
-    margin-right: 8px;
+    margin-bottom: 8px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .album-image img {
-    width: 56px;
-    height: 56px;
+    width: 120px;
+    height: 120px;
     object-fit: cover;
-    border: 1px solid #ccc;
-    border-radius: 2px;
+    border: none;
+    border-radius: 4px;
 }
 
 .folder-icon {
-    font-size: 35px;
+    font-size: 50px;
     color: #000080;
-    margin-right: 8px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .album-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     flex: 1;
     justify-content: center;
     min-width: 0;
     overflow: hidden;
+    width: 100%;
 }
 
 .album-name {
-    font-size: 15px;
+    font-size: 14px;
     color: #222222;
     font-weight: 500;
     line-height: 1.2;
-    margin-bottom: 2px;
     font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-}
-
-.photo-count {
-    font-size: 13px;
-    color: #666;
-    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
+    text-align: center;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 /* Image Viewer Styles */

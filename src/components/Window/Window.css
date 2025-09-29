@@ -29,11 +29,9 @@
 
 @media (max-width: 768px) {
     .windowContainer {
-        /* On mobile, ensure windows don't go off screen */
-        left: 0 !important;
-        top: 0 !important;
-        width: 100vw !important;
-        height: calc(100vh - 50px) !important;
+        /* On mobile, ensure windows don't go off screen but respect their set size */
+        max-width: 100vw;
+        max-height: calc(100vh - 50px);
     }
     
     .windowContainer.minimized {
