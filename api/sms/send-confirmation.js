@@ -12,9 +12,17 @@ export default async function handler(req, res) {
 
     try {
         console.log('=== ATTEMPTING TO IMPORT SMS SERVICE ===');
+        console.log('Import path: ../../src/services/smsService.js');
+        console.log('Current working directory:', process.cwd());
+        console.log('Node version:', process.version);
+        console.log('Platform:', process.platform);
+        
         // Import the service inside the function to avoid module loading issues
         const smsService = (await import('../../src/services/smsService.js')).default;
         console.log('SMS Service imported successfully:', !!smsService);
+        console.log('SMS Service type:', typeof smsService);
+        console.log('SMS Service methods:', smsService ? Object.getOwnPropertyNames(smsService) : 'No service');
+        console.log('SMS Service sendAppointmentConfirmation method:', typeof smsService?.sendAppointmentConfirmation);
         
         console.log('=== PARSING REQUEST BODY ===');
         const { appointmentDetails } = req.body;
@@ -31,6 +39,10 @@ export default async function handler(req, res) {
         console.log('=== CHECKING ENVIRONMENT VARIABLES ===');
         console.log('TEXTBELT_KEY present:', !!process.env.TEXTBELT_KEY);
         console.log('TEXTBELT_KEY length:', process.env.TEXTBELT_KEY ? process.env.TEXTBELT_KEY.length : 0);
+        console.log('TEXTBELT_KEY first 5 chars:', process.env.TEXTBELT_KEY ? process.env.TEXTBELT_KEY.substring(0, 5) : 'N/A');
+        console.log('TEXTBELT_KEY last 5 chars:', process.env.TEXTBELT_KEY ? process.env.TEXTBELT_KEY.substring(process.env.TEXTBELT_KEY.length - 5) : 'N/A');
+        console.log('All environment variables with TEXT:', Object.keys(process.env).filter(key => key.includes('TEXT')));
+        console.log('All environment variables with BELT:', Object.keys(process.env).filter(key => key.includes('BELT')));
         
         // Check if SMS service is properly configured
         if (!process.env.TEXTBELT_KEY) {
@@ -43,8 +55,14 @@ export default async function handler(req, res) {
 
         console.log('=== CALLING SMS SERVICE ===');
         console.log('Attempting to send SMS confirmation for:', appointmentDetails.phone);
+        console.log('SMS Service object before call:', JSON.stringify(smsService, null, 2));
+        console.log('About to call sendAppointmentConfirmation with:', JSON.stringify(appointmentDetails, null, 2));
+        
         const result = await smsService.sendAppointmentConfirmation(appointmentDetails);
         console.log('SMS service result:', JSON.stringify(result, null, 2));
+        console.log('Result success:', result?.success);
+        console.log('Result error:', result?.error);
+        console.log('Result textId:', result?.textId);
 
         console.log('=== PROCESSING SMS RESULT ===');
         if (result.success) {

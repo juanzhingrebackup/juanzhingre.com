@@ -28,22 +28,34 @@ class SMSService {
 
     async sendSMS(phone, message) {
         try {
+            console.log('=== SMS SERVICE: sendSMS called ===');
             console.log('SMS Service: Sending SMS to', phone);
             console.log('SMS Service: API Key present:', !!this.apiKey);
+            console.log('SMS Service: API Key length:', this.apiKey ? this.apiKey.length : 0);
+            console.log('SMS Service: API Key first 5 chars:', this.apiKey ? this.apiKey.substring(0, 5) : 'N/A');
             console.log('SMS Service: Base URL:', this.baseUrl);
+            console.log('SMS Service: Message length:', message.length);
+            console.log('SMS Service: Message preview:', message.substring(0, 100) + '...');
             
-            const response = await axios.post(`${this.baseUrl}/text`, {
+            const requestData = {
                 phone: phone,
                 message: message,
                 key: this.apiKey
-            }, {
+            };
+            console.log('SMS Service: Request data:', JSON.stringify(requestData, null, 2));
+            
+            const requestUrl = `${this.baseUrl}/text`;
+            console.log('SMS Service: Request URL:', requestUrl);
+            
+            const response = await axios.post(requestUrl, requestData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
 
             console.log('SMS Service: Response status:', response.status);
-            console.log('SMS Service: Response data:', response.data);
+            console.log('SMS Service: Response headers:', response.headers);
+            console.log('SMS Service: Response data:', JSON.stringify(response.data, null, 2));
 
             return {
                 success: response.data.success,
@@ -51,11 +63,17 @@ class SMSService {
                 error: response.data.error
             };
         } catch (error) {
+            console.error('=== SMS SERVICE ERROR ===');
             console.error('SMS Service Error:', error.message);
+            console.error('SMS Service Error name:', error.name);
+            console.error('SMS Service Error code:', error.code);
+            console.error('SMS Service Error stack:', error.stack);
             console.error('SMS Service Error Details:', {
                 code: error.code,
                 response: error.response?.data,
-                status: error.response?.status
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                headers: error.response?.headers
             });
             return {
                 success: false,
@@ -124,10 +142,23 @@ class SMSService {
 
     // SMS Service Methods
     async sendAppointmentConfirmation(appointmentDetails) {
+        console.log('=== SMS SERVICE: sendAppointmentConfirmation called ===');
+        console.log('Appointment details received:', JSON.stringify(appointmentDetails, null, 2));
+        
         const { phone } = appointmentDetails;
+        console.log('Phone number extracted:', phone);
+        
         const message = this.appointmentConfirmation(appointmentDetails);
+        console.log('Generated message:', message);
+        
         const formattedPhone = this.formatPhoneNumber(phone);
-        return await this.sendSMS(formattedPhone, message);
+        console.log('Formatted phone:', formattedPhone);
+        
+        console.log('About to call sendSMS with phone:', formattedPhone);
+        const result = await this.sendSMS(formattedPhone, message);
+        console.log('sendSMS result:', JSON.stringify(result, null, 2));
+        
+        return result;
     }
 
     async sendBusinessNotification(appointmentDetails) {
