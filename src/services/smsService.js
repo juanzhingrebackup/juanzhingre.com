@@ -1,4 +1,4 @@
-import axios from 'axios';
+// Using Node.js built-in fetch instead of axios for Vercel compatibility
 
 class SMSService {
     constructor() {
@@ -47,20 +47,33 @@ class SMSService {
             const requestUrl = `${this.baseUrl}/text`;
             console.log('SMS Service: Request URL:', requestUrl);
             
-            const response = await axios.post(requestUrl, requestData, {
+            // Convert data to URL-encoded format for textbelt API
+            const formData = new URLSearchParams();
+            formData.append('phone', requestData.phone);
+            formData.append('message', requestData.message);
+            formData.append('key', requestData.key);
+            
+            console.log('SMS Service: Form data:', formData.toString());
+            
+            const response = await fetch(requestUrl, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                },
+                body: formData.toString()
             });
 
             console.log('SMS Service: Response status:', response.status);
-            console.log('SMS Service: Response headers:', response.headers);
-            console.log('SMS Service: Response data:', JSON.stringify(response.data, null, 2));
+            console.log('SMS Service: Response ok:', response.ok);
+            console.log('SMS Service: Response headers:', Object.fromEntries(response.headers.entries()));
+            
+            const responseData = await response.json();
+            console.log('SMS Service: Response data:', JSON.stringify(responseData, null, 2));
 
             return {
-                success: response.data.success,
-                textId: response.data.textId,
-                error: response.data.error
+                success: responseData.success,
+                textId: responseData.textId,
+                error: responseData.error
             };
         } catch (error) {
             console.error('=== SMS SERVICE ERROR ===');
@@ -70,10 +83,8 @@ class SMSService {
             console.error('SMS Service Error stack:', error.stack);
             console.error('SMS Service Error Details:', {
                 code: error.code,
-                response: error.response?.data,
-                status: error.response?.status,
-                statusText: error.response?.statusText,
-                headers: error.response?.headers
+                message: error.message,
+                stack: error.stack
             });
             return {
                 success: false,
