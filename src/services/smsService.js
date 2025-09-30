@@ -1,113 +1,130 @@
-// Using Node.js built-in fetch for Vercel compatibility
+import nodemailer from 'nodemailer';
 
-class SMSService {
+class EmailService {
   constructor() {
-    this.apiKey = process.env.TEXTBELT_KEY;
-    this.baseUrl = 'https://textbelt.com';
+    // Fix: nodemailer.createTransport (not createTransporter)
+    this.transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT, 10),
+      secure: process.env.EMAIL_PORT === '465',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
   }
 
-  formatPhoneNumber(phone) {
-    let cleaned = phone.replace(/[^\d+]/g, '');
-    if (cleaned.startsWith('+')) return cleaned;
-    if (cleaned.length === 10) return `+1${cleaned}`;
-    if (cleaned.length === 11 && cleaned.startsWith('1')) return `+${cleaned}`;
-    return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
-  }
-
-  async sendSMS(phone, message) {
+  async sendEmail(to, subject, message) {
     try {
-      const requestUrl = `${this.baseUrl}/text`;
-      const formData = new URLSearchParams();
-      formData.append('phone', phone);
-      formData.append('message', message);
-      formData.append('key', this.apiKey);
-
-      const response = await fetch(requestUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString(),
-      });
-
-      const data = await response.json();
-      return {
-        success: !!data.success,
-        textId: data.textId,
-        error: data.error,
+      const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to,
+        subject,
+        text: message,
+        html: message.replace(/\n/g, '<br>'),
       };
+
+      const result = await this.transporter.sendMail(mailOptions);
+      return { success: true, messageId: result.messageId };
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Email sending failed:', error);
+      return { success: false, error: error.message || 'Unknown error occurred' };
     }
   }
 
-  // Templates
-  appointmentConfirmation(appointmentDetails) {
-    const { name, confirmationCode, cut, day, time, location, address } = appointmentDetails;
-    const displayAddress = location === 'at location' ? process.env.BUSINESS_ADDRESS : address;
+  // Email Templates
+  smsFailureNotificationDev(appointmentDetails, smsError) {
+    const subject = 'SMS Failure - Appointment Booking Issue';
+    const message = `
+SMS Sending Failed for Appointment Booking
 
-    let msg = `Hey ${name}! Your ${cut} appointment is booked!\n\n`;
-    msg += `- Date: ${day} at ${time}\n`;
-    msg += `- Location: ${displayAddress}\n\n`;
-    msg += `🔐 Confirmation Code: ${confirmationCode}\n\n`;
-    msg += `Please enter this code on the website to confirm your booking.\n\n`;
-    msg += `Thank you for choosing Playday Cuts! Text ${process.env.BUSINESS_PHONE} for questions.`;
-    return msg;
+Appointment Details:
+- Name: ${appointmentDetails.name}
+- Phone: ${appointmentDetails.phone}
+- Service: ${appointmentDetails.cut}
+- Day: ${appointmentDetails.day}
+- Time: ${appointmentDetails.time}
+- Location: ${appointmentDetails.location}
+${appointmentDetails.address ? `- Address: ${appointmentDetails.address}` : ''}
+
+SMS Error Details:
+${smsError}
+
+Timestamp: ${new Date().toISOString()}
+Automated Message`.trim();
+
+    return { subject, message };
   }
 
-  businessNotification(appointmentDetails) {
-    const { name, phone, cut, day, time, location, address } = appointmentDetails;
-    const displayAddress = location === 'at location' ? process.env.BUSINESS_ADDRESS : address;
+  smsFailureNotificationClient(appointmentDetails) {
+    const subject = 'SMS Notification Failed - Manual Follow-up Required';
+    const message = `
+Hello,
 
-    let msg = `NEW APPOINTMENT BOOKING\n\n`;
-    msg += `- Customer: ${name}\n`;
-    msg += `- Phone: ${phone}\n`;
-    msg += `- Service: ${cut}\n`;
-    msg += `- Date: ${day}\n`;
-    msg += `- Time: ${time}\n`;
-    if (displayAddress) msg += `- Location: ${displayAddress}\n`;
-    msg += `\n- Booked at: ${new Date().toLocaleString()}`;
-    return msg;
+A customer tried to book an appointment but the SMS confirmation failed to send.
+
+Customer Details:
+- Name: ${appointmentDetails.name}
+- Phone: ${appointmentDetails.phone}
+- Service: ${appointmentDetails.cut}
+- Day: ${appointmentDetails.day}
+- Time: ${appointmentDetails.time}
+- Location: ${appointmentDetails.location}
+${appointmentDetails.address ? `- Address: ${appointmentDetails.address}` : ''}
+
+Please contact the customer directly to confirm their appointment.
+
+Automated Message`.trim();
+
+    return { subject, message };
   }
 
-  appointmentCancellation(appointmentDetails) {
-    const { name, phone, cut, day, time, location, address } = appointmentDetails;
-    const displayAddress = location === 'at location' ? process.env.BUSINESS_ADDRESS : address;
+  appointmentReminder(appointmentDetails) {
+    const subject = 'New Appointment Booking Reminder';
+    const message = `
+New Appointment Booked!
 
-    let msg = `❌ APPOINTMENT CANCELLED\n\n`;
-    msg += `- Customer: ${name}\n`;
-    msg += `- Phone: ${phone}\n`;
-    msg += `- Service: ${cut}\n`;
-    msg += `- Date: ${day}\n`;
-    msg += `- Time: ${time}\n`;
-    msg += `- Location: ${location}\n`;
-    if (displayAddress) msg += `- Address: ${displayAddress}\n`;
-    msg += `\n- Cancelled at: ${new Date().toLocaleString()}`;
-    return msg;
+Customer Details:
+- Name: ${appointmentDetails.name}
+- Phone: ${appointmentDetails.phone}
+- Service: ${appointmentDetails.cut}
+- Day: ${appointmentDetails.day}
+- Time: ${appointmentDetails.time}
+- Location: ${appointmentDetails.location}
+${appointmentDetails.address ? `- Address: ${appointmentDetails.address}` : ''}
+
+The customer has been sent an SMS confirmation.
+
+Timestamp: ${new Date().toISOString()}
+Automated Message`.trim();
+
+    return { subject, message };
   }
 
-  // Service methods
-  async sendAppointmentConfirmation(appointmentDetails) {
-    const formatted = this.formatPhoneNumber(appointmentDetails.phone);
-    const message = this.appointmentConfirmation(appointmentDetails);
-    return await this.sendSMS(formatted, message);
+  generalNotification(subject, message) {
+    return { subject, message };
   }
 
-  async sendBusinessNotification(appointmentDetails) {
-    const businessPhone = process.env.BUSINESS_PHONE;
-    if (!businessPhone) return { success: false, error: 'Business phone not configured' };
-    const formatted = this.formatPhoneNumber(businessPhone);
-    const message = this.businessNotification(appointmentDetails);
-    return await this.sendSMS(formatted, message);
+  // Email Service Methods
+  async sendSmsFailureNotificationDev(appointmentDetails, smsError) {
+    const { subject, message } = this.smsFailureNotificationDev(appointmentDetails, smsError);
+    return await this.sendEmail(process.env.EMAIL_FROM, subject, message);
   }
 
-  async sendAppointmentCancellation(appointmentDetails) {
-    const formatted = this.formatPhoneNumber(appointmentDetails.phone);
-    const message = this.appointmentCancellation(appointmentDetails);
-    return await this.sendSMS(formatted, message);
+  async sendSmsFailureNotificationClient(appointmentDetails) {
+    const { subject, message } = this.smsFailureNotificationClient(appointmentDetails);
+    return await this.sendEmail(process.env.EMAIL_FROM, subject, message);
+  }
+
+  async sendAppointmentReminder(appointmentDetails) {
+    const { subject, message } = this.appointmentReminder(appointmentDetails);
+    return await this.sendEmail(process.env.EMAIL_FROM, subject, message);
+  }
+
+  async sendGeneralNotification(subject, message) {
+    const { subject: finalSubject, message: finalMessage } = this.generalNotification(subject, message);
+    return await this.sendEmail(process.env.EMAIL_FROM, finalSubject, finalMessage);
   }
 }
 
-const smsService = new SMSService();
-// Export both named and default to avoid ESM/CJS shape issues.
-export { SMSService, smsService };
-export default smsService; 
-// By John Michael
+export default new EmailService(); // By John Michael
