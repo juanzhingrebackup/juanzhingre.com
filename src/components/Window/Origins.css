@@ -3,9 +3,9 @@
     padding: 20px;
     background: #c0c0c0;
     font-family: "Perfect DOS VGA 437",
-                 "Courier New",
-                 Courier,
-                 monospace;
+                "Courier New",
+                Courier,
+                monospace;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -36,4 +36,4 @@
     text-decoration: underline;
     color: #000;
     text-decoration-color: #000;
-}
+} /* By John Michael */

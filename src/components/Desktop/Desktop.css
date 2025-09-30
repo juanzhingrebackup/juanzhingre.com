@@ -8,9 +8,9 @@
     position: relative;
     overflow: hidden;
     font-family: "Perfect DOS VGA 437",
-                 "Courier New",
-                 Courier,
-                 monospace;
+                "Courier New",
+                Courier,
+                monospace;
 }
 
 @media (max-width: 768px) {
@@ -352,4 +352,4 @@
     height: 1px;
     background: #808080;
     margin: 2px 0;
-}
+} /* By John Michael */

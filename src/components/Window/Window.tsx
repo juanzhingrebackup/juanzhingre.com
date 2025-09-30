@@ -147,4 +147,4 @@ const Window: React.FC<WindowProps> = ({
             )}
         </div>
     );
-}; export default Window;
+}; export default Window; // By John Michael

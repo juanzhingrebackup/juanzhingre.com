@@ -34,4 +34,4 @@ export interface AppConfig {
     icon: string;
     color: string;
     component: React.ComponentType<any>;
-}
+} // By John Michael

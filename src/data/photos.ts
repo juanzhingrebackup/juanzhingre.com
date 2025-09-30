@@ -1,4 +1,3 @@
-// Auto-generated photo data from images folder
 export const photoCollections = [
     {
         "id": "midnight",
@@ -543,4 +542,4 @@ export const photoData = [
         "path": "/albums/ultra-sodade/IMG_9086.JPG",
         "collection": "ultra-sodade"
     }
-];
+]; // By John Michael

@@ -3,7 +3,4 @@ declare global {
   interface Window {
     google: typeof google;
   }
-}
-
-// Make sure this file is treated as a module
-export {};
+} export {}; // By John Michael

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import ConfirmationCode from './ConfirmationCode';
 import AddressAutocomplete from '../AddressAutocomplete/AddressAutocomplete';
-import DistanceValidator from '../DistanceValidator/DistanceValidator';
 import { generateConfirmationCode } from '../../utils/confirmationCode';
+import DistanceValidator from '../DistanceValidator/DistanceValidator';
+import ConfirmationCode from './ConfirmationCode';
+import React, { useState } from 'react';
 import './AppointmentMaker.css';
 
 interface AppointmentMakerProps {
@@ -717,4 +717,4 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
             </div>
         </div>
     );
-}; export default AppointmentMaker;
+}; export default AppointmentMaker; // By John Michael

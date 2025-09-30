@@ -24,8 +24,6 @@ class SMSService {
         return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
     }
 
-
-
     async sendSMS(phone, message) {
         try {            
             const response = await axios.post(`${this.baseUrl}/text`, {

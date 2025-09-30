@@ -123,4 +123,4 @@ class DatabaseService {
             };
         }
     }
-} export default new DatabaseService();
+} export default new DatabaseService(); // By John Michael

@@ -58,7 +58,8 @@ class EmailService {
 
             Timestamp: ${new Date().toISOString()}
             
-            Automated Message`.trim();
+            Automated Message
+        `.trim();
 
         return { subject, message };
     }
@@ -81,7 +82,8 @@ class EmailService {
 
             Please contact the customer directly to confirm their appointment.
 
-            Automated Message`.trim();
+            Automated Message
+        `.trim();
 
         return { subject, message };
     }
@@ -103,7 +105,8 @@ class EmailService {
             The customer has been sent an SMS confirmation.
 
             Timestamp: ${new Date().toISOString()}
-            Automated Message`.trim();
+            Automated Message
+        `.trim();
 
         return { subject, message };
     }

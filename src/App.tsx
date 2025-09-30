@@ -8,4 +8,4 @@ function App() {
             <SpeedInsights />
         </div>
     );
-} export default App;
+} export default App; // By John Michael

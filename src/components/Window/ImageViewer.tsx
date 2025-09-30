@@ -113,4 +113,4 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ collection, onOpenPhoto }) =>
             )}
         </div>
     );
-}; export default ImageViewer;
+}; export default ImageViewer; // By John Michael

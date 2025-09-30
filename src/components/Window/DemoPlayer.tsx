@@ -130,4 +130,4 @@ const DemoPlayer: React.FC = () => {
             />
         </div>
     );
-}; export default DemoPlayer;
+}; export default DemoPlayer; // By John Michael

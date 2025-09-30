@@ -1,92 +1,92 @@
 .address-autocomplete {
-  position: relative;
-  width: 100%;
-  display: block;
+    position: relative;
+    width: 100%;
+    display: block;
 }
 
 .input-container {
-  position: relative;
-  display: flex;
-  align-items: center;
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 /* Address input styling to match other inputs exactly */
 .address-autocomplete .input {
-  width: 100%;
-  padding: 8px;
-  border: 2px solid #808080;
-  border-top: 2px solid #ffffff;
-  border-left: 2px solid #ffffff;
-  background: #ffffff;
-  font-size: 14px;
-  box-sizing: border-box;
-  height: 28px;
-  font-family: inherit;
-  color: #000;
-  outline: none;
-  resize: none;
-  overflow: hidden;
-  line-height: 1.2;
-  vertical-align: top;
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #808080;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    background: #ffffff;
+    font-size: 14px;
+    box-sizing: border-box;
+    height: 28px;
+    font-family: inherit;
+    color: #000;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.2;
+    vertical-align: top;
 }
 
 .loading-spinner {
-  position: absolute;
-  right: 8px;
-  font-size: 12px;
-  color: #000080;
-  animation: spin 1s linear infinite;
+    position: absolute;
+    right: 8px;
+    font-size: 12px;
+    color: #000080;
+    animation: spin 1s linear infinite;
 }
 
 .address-checkmark {
-  position: absolute;
-  right: 8px;
-  color: #4CAF50;
-  font-size: 16px;
-  font-weight: bold;
-  pointer-events: none;
+    position: absolute;
+    right: 8px;
+    color: #4CAF50;
+    font-size: 16px;
+    font-weight: bold;
+    pointer-events: none;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .predictions-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #c0c0c0;
-  border: 2px solid #000;
-  border-top: none;
-  z-index: 1000;
-  max-height: 200px;
-  overflow-y: auto;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  margin-top: 2px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #c0c0c0;
+    border: 2px solid #000;
+    border-top: none;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-top: 2px;
 }
 
 .prediction-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: 'MS Sans Serif', sans-serif;
-  font-size: 11px;
-  color: #000;
-  border-bottom: 1px solid #808080;
-  transition: background-color 0.1s;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    color: #000;
+    border-bottom: 1px solid #808080;
+    transition: background-color 0.1s;
 }
 
 .prediction-item:hover {
-  background: #000080;
-  color: #ffffff;
+    background: #000080;
+    color: #ffffff;
 }
 
 .prediction-item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .prediction-item:active {
-  background: #000080;
-  color: #ffffff;
-}
+    background: #000080;
+    color: #ffffff;
+} /* By John Michael */

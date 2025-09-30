@@ -1,25 +1,25 @@
 {
-  "functions": {
-    "api/database/appointments.js": {
-      "memory": 512,
-      "maxDuration": 30
+    "functions": {
+        "api/database/appointments.js": {
+            "memory": 512,
+            "maxDuration": 30
+        },
+        "api/sms/send-confirmation.js": {
+            "memory": 256,
+            "maxDuration": 10
+        },
+        "api/sms/send-business-notification.js": {
+            "memory": 256,
+            "maxDuration": 10
+        },
+        "api/email/send-sms-failure.js": {
+            "memory": 256,
+            "maxDuration": 10
+        },
+        "api/email/send-business-notification.js": {
+            "memory": 256,
+            "maxDuration": 10
+        }
     },
-    "api/sms/send-confirmation.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
-    "api/sms/send-business-notification.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
-    "api/email/send-sms-failure.js": {
-      "memory": 256,
-      "maxDuration": 10
-    },
-    "api/email/send-business-notification.js": {
-      "memory": 256,
-      "maxDuration": 10
-    }
-  },
-  "regions": ["iad1"]
+    "regions": ["iad1"]
 }

@@ -1,6 +1,6 @@
+import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 import React, { useEffect, useState, useCallback } from 'react';
 import { photoCollections, photoData } from '../../data/photos';
-import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 import './ishv4ra.css';
 
 interface PhotoCollection {
@@ -233,6 +233,4 @@ const Ishv4ra: React.FC<Ishv4raProps> = ({ onOpenCollection }) => {
             </div>
         </div>
     );
-};
-
-export default Ishv4ra;
+}; export default Ishv4ra; // By John Michael

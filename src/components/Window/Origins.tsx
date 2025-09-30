@@ -33,4 +33,4 @@ const CreditsWindow: React.FC<CreditsWindowProps> = ({ onClose }) => {
             </div>
         </div>
     );
-}; export default CreditsWindow;
+}; export default CreditsWindow; // By John Michael

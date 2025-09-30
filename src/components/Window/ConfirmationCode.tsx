@@ -101,6 +101,4 @@ const ConfirmationCode: React.FC<ConfirmationCodeProps> = ({
             </div>
         </div>
     );
-};
-
-export default ConfirmationCode;
+}; export default ConfirmationCode; // By John Michael

@@ -55,4 +55,4 @@ const MusicWindow: React.FC = () => {
             </div>
         </div>
     );
-}; export default MusicWindow;
+}; export default MusicWindow; // By John Michael
