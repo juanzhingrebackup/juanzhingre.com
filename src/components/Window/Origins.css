@@ -36,10 +36,10 @@
     text-decoration: underline;
     color: #000;
     text-decoration-color: #000;
-} /* By John Michael */
+}
 
 .volume-text {
     font-size: 10px;
     margin-top: 20px;
     display: block;
-}
+}  /* By John Michael */
