@@ -28,7 +28,8 @@ const CreditsWindow: React.FC<CreditsWindowProps> = ({ onClose }) => {
                 </div>
                 <div>
                     Produced and creative decisions approved<br />
-                    <strong>by Juan Zhingre</strong>
+                    <strong>by Juan Zhingre</strong><br />
+                    <span className="volume-text">volume 1.1.0</span>
                 </div>
             </div>
         </div>

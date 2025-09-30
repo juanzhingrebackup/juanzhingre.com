@@ -25,18 +25,10 @@ const Desktop: React.FC = () => {
                 color: '#007AFF'
             },
             {
-                id: 'ishv4ra',
-                name: 'ishv4ra',
-                type: 'folder',
-                position: { x: 30, y: 200 },
-                icon: '/icons/ishv4ra.png',
-                color: '#8B4513'
-            },
-            {
                 id: 'demos',
                 name: 'demos',
                 type: 'folder',
-                position: { x: 30, y: 300 },
+                position: { x: 30, y: 200 },
                 icon: '/icons/demos.png',
                 color: '#9C27B0'
             },
@@ -44,9 +36,17 @@ const Desktop: React.FC = () => {
                 id: 'playday',
                 name: 'playday cuts',
                 type: 'folder',
-                position: { x: 30, y: 400 },
+                position: { x: 30, y: 300 },
                 icon: '/icons/playdaycuts.png',
                 color: '#FF6B6B'
+            },
+            {
+                id: 'ishv4ra',
+                name: 'ishv4ra',
+                type: 'folder',
+                position: { x: 30, y: 400 },
+                icon: '/icons/ishv4ra.png',
+                color: '#8B4513'
             }
         ],
         windows: [],
@@ -61,7 +61,14 @@ const Desktop: React.FC = () => {
                 // Reposition icons horizontally at the top for mobile
                 const iconSpacing = Math.min(90, (window.innerWidth - 40) / 4);
                 setDesktopState(prev => ({ 
-                    ...prev, icons: prev.icons.map((icon, index) => ({ ...icon, position: { x: 20 + (index * iconSpacing), y: 20 }}))
+                    ...prev, icons: prev.icons.map((icon, index) => {
+                        let xPosition = 20 + (index * iconSpacing);
+                        // Move ishv4ra icon (index 3) more to the right
+                        if (index === 3) {
+                            xPosition += 10;
+                        }
+                        return { ...icon, position: { x: xPosition, y: 20 }};
+                    })
                 }));
             } else {
                 // Reset to original vertical layout for desktop
@@ -148,12 +155,13 @@ const Desktop: React.FC = () => {
     }, []);
 
     const handleOpenCredits = useCallback(() => {
+        const isMobile = window.innerWidth <= 768;
         const newWindow: WindowType = {
             id: 'credits-window',
             title: 'Origins',
             type: 'app',
-            position: { x: 300, y: 200 },
-            size: { width: 400, height: 300 },
+            position: isMobile ? { x: 20, y: 20 } : { x: 300, y: 200 },
+            size: isMobile ? { width: Math.min(400, window.innerWidth - 40), height: Math.min(350, window.innerHeight - 100) } : { width: 400, height: 300 },
             isMinimized: false,
             isMaximized: false,
             isOpen: true,
@@ -240,8 +248,8 @@ const Desktop: React.FC = () => {
                 id: `music-${Date.now()}`,
                 title: 'Music',
                 type: 'app',
-                position: isMobile ? { x: 10, y: 10 } : { x: 150, y: 150 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 600, height: 350 },
+                position: isMobile ? { x: 20, y: 20 } : { x: 150, y: 150 },
+                size: isMobile ? { width: Math.min(400, window.innerWidth - 40), height: Math.min(300, window.innerHeight - 100) } : { width: 600, height: 350 },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -288,8 +296,8 @@ const Desktop: React.FC = () => {
                 id: `window-${icon.id}`,
                 title: icon.name,
                 type: 'app',
-                position: isMobile ? { x: 10, y: 10 } : { x: 100, y: 100 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 800, height: calculatedHeight },
+                position: isMobile ? { x: 20, y: 20 } : { x: 100, y: 100 },
+                size: isMobile ? { width: Math.min(500, window.innerWidth - 40), height: Math.min(calculatedHeight + 15, window.innerHeight - 100) } : { width: 800, height: calculatedHeight },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -309,7 +317,7 @@ const Desktop: React.FC = () => {
                 title: icon.name,
                 type: 'app',
                 position: isMobile ? { x: 10, y: 10 } : { x: 200, y: 150 },
-                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 500, height: 850 },
+                size: isMobile ? { width: window.innerWidth - 20, height: window.innerHeight - 100 } : { width: 500, height: 600 },
                 isMinimized: false,
                 isMaximized: false,
                 isOpen: true,
@@ -407,7 +415,7 @@ const Desktop: React.FC = () => {
         setIsStartMenuOpen(false);
     }, []);
 
-  // Update time every second
+    // Update time every second
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
@@ -426,6 +434,22 @@ const Desktop: React.FC = () => {
         const interval = setInterval(updateTime, 1000); // Update every second
 
         return () => clearInterval(interval);
+    }, []);
+
+    // Preload all images on site load
+    useEffect(() => {
+        const preloadAllImages = () => {
+            photoData.forEach((photo, index) => {
+                const img = new Image();
+                img.onerror = () => {
+                    console.warn(`Failed to preload image: ${photo.path}`);
+                };
+                img.src = photo.path;
+            });
+        };
+
+        // Start preloading immediately when component mounts
+        preloadAllImages();
     }, []);
 
     return (
@@ -475,7 +499,6 @@ const Desktop: React.FC = () => {
                         className="startButton"
                         data-start-button
                         onClick={() => {
-                            console.log('Start button clicked, current state:', isStartMenuOpen);
                             setIsStartMenuOpen(!isStartMenuOpen);
                         }}
                     >
@@ -579,6 +602,16 @@ const Desktop: React.FC = () => {
                         >
                             <img src="/social-icons/instagram.png" alt="Instagram" className="menuItemIcon" />
                             ishv4ra
+                        </div>
+                        <div 
+                            className="startMenuItem"
+                            onClick={() => {
+                                window.open('https://www.instagram.com/playdaycuts/', '_blank');
+                                setIsStartMenuOpen(false);
+                            }}
+                        >
+                            <img src="/social-icons/instagram.png" alt="Instagram" className="menuItemIcon" />
+                            playdaycuts
                         </div>
                         <div className="divider"></div>
                         <div className="startMenuItem" onClick={() => {

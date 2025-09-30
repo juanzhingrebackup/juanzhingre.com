@@ -19,6 +19,7 @@ const Icon: React.FC<IconProps> = ({ icon, onClick, onMove, isSelected = false }
     const dragOffsetRef = useRef({ x: 0, y: 0 });
     const startPosRef = useRef({ x: 0, y: 0 });
     const clickHandledRef = useRef(false);
+    const touchUsedRef = useRef(false);
 
     const isImageIcon = icon.icon.includes('.png') || icon.icon.includes('.jpg') || icon.icon.includes('.jpeg') || icon.icon.includes('.gif');
 
@@ -84,8 +85,8 @@ const Icon: React.FC<IconProps> = ({ icon, onClick, onMove, isSelected = false }
     }, []);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
-        // Only handle mouse clicks on desktop
-        if (window.innerWidth <= 768) {
+        // Prevent mouse events from firing after touch events on mobile
+        if (touchUsedRef.current) {
             return;
         }
         
@@ -107,6 +108,9 @@ const Icon: React.FC<IconProps> = ({ icon, onClick, onMove, isSelected = false }
         const touch = e.touches[0];
         const rect = iconRef.current?.getBoundingClientRect();
         if (!rect) return;
+        
+        // Mark that touch was used to prevent mouse events
+        touchUsedRef.current = true;
         
         const offsetX = touch.clientX - rect.left;
         const offsetY = touch.clientY - rect.top;
@@ -181,8 +185,11 @@ const Icon: React.FC<IconProps> = ({ icon, onClick, onMove, isSelected = false }
         
         isDraggingRef.current = false;
         setIsDragging(false);
-        // Reset touchUsed after a short delay to allow for proper click handling
-        setTimeout(() => {}, 100);
+        
+        // Reset touchUsed after a delay to allow for proper click handling
+        setTimeout(() => {
+            touchUsedRef.current = false;
+        }, 100);
     }, [onClick, dragDistance, lastClickTime]);
 
     return (

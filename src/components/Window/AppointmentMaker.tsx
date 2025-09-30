@@ -307,6 +307,11 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                 };
 
                 // Send SMS confirmation to customer
+                console.log('=== CLIENT: SENDING SMS REQUEST ===');
+                console.log('Appointment details being sent:', JSON.stringify(appointmentDetails, null, 2));
+                console.log('Request URL:', '/api/sms/send-confirmation');
+                console.log('Request method:', 'POST');
+                
                 const smsResponse = await fetch('/api/sms/send-confirmation', {
                     method: 'POST',
                     headers: {
@@ -315,8 +320,16 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     body: JSON.stringify({ appointmentDetails })
                 });
 
+                console.log('=== CLIENT: SMS RESPONSE RECEIVED ===');
+                console.log('Response status:', smsResponse.status);
+                console.log('Response statusText:', smsResponse.statusText);
+                console.log('Response ok:', smsResponse.ok);
+                console.log('Response headers:', Object.fromEntries(smsResponse.headers.entries()));
+
                 if (!smsResponse.ok) {
                     console.error('SMS API error:', smsResponse.status, smsResponse.statusText);
+                    const responseText = await smsResponse.text();
+                    console.error('Response body:', responseText);
                     const businessPhone = process.env.BUSINESS_PHONE || 'the barber';
                     alert(`SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`);
                     return;
@@ -416,7 +429,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     console.error('Failed to send business email:', emailError);
                 }
 
-                alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}\n\nI'll reach out to you soon!`);
+                alert(`Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : 'At Location'}`);
             } else {
                 console.error('Database error:', dbResult.error);
                 alert('Appointment confirmed but there was an error saving to database. Please contact us directly.');

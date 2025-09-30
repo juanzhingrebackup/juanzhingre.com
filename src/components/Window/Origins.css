@@ -1,7 +1,7 @@
 .container {
     height: 100%;
     padding: 20px;
-    background: #c0c0c0;
+    background: #ffffff;
     font-family: "Perfect DOS VGA 437",
                 "Courier New",
                 Courier,
@@ -37,3 +37,9 @@
     color: #000;
     text-decoration-color: #000;
 } /* By John Michael */
+
+.volume-text {
+    font-size: 10px;
+    margin-top: 20px;
+    display: block;
+}
