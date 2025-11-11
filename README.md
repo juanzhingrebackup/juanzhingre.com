@@ -6,48 +6,42 @@ Directed and creative decisions made [By John Michael](https://byjohnmichael.com
 
 Produced and creative decisions approved by Juan Zhingre
 
-## Prerequisites
-- Node.js (version 20 or higher)
+## Getting Started Guide
 
-## Installation
-1. Clone or download this project
-   ```bash
-   git clone https://github.com/byjohnmichael/juanzhingre.com.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd juanzhingre.com
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-## Project Commands
-
-### Local Development (npm run start)
-1. Run the start script
+1. Clone
     ```bash
-    npm run start
+    git clone https://github.com/byjohnmichael/juanzhingre.comok le.git
     ```
-2. Open your browser and go to `http://localhost:2509`
-
-### Local Development with Vercel (npm run vercel)
-1. Install vercel via npx, follow the instructions to link account and project
+2. Navigate
     ```bash
-    npx vercel
+    cd juanzhingre.com
     ```
-2. Run the Vercel startup script
+3. Installation
     ```bash
-    npm run vercel
+    npm install
     ```
-3. Open your browser and go to `http://localhost:2509`
-
-### Production Build (npm run build)
-1. Run the build script
+4. Develop
+    ```bash
+    npm run dev
+    ```
+5. Lint
+    ```bash
+    npm run lint
+    ```
+6. Format
+    ```bash
+    npm run format:check
+    npm run format
+    ```
+7. Build
     ```bash
     npm run build
     ```
-2. Production contained in the ```build/``` folder
+8. Start
+   ```bash
+   npm run start
+   ```
+
 ---
+
 [By John Michael](https://byjohnmichael.com)

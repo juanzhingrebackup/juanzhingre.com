@@ -1,37 +1,17 @@
-# Dependencies
+# Root Directories: Build Output, Next.js files
+/build
+/.next
+
+# Directories: Node Packages
 node_modules/
 
-# Build and Coverage
-/build
-/coverage
-/.pnp
-.pnp.js
+# Files: Next.js Declaration Files
+next-env.d.ts
 
-# Logs and PIDs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pids
-*.pid
-*.pid.lock
-*.seed
-
-# Caches
-.npm
-.eslintcache
-
-# Environment Variables
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env*.local
-
-# OS
+# Hidden Files: Mac OS System Files
 .DS_Store
 
-# IDE / Tooling
-.vscode/
-.idea/
-.vercel
+# Wild Card Hidden Files: Environment Variables
+.env*
+
 # By John Michael

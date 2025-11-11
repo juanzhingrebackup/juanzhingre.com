@@ -1,26 +1,36 @@
 {
     "compilerOptions": {
-        "target": "es5",
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "esnext"
-        ],
-        "allowJs": true,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "strict": true,
         "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "module": "esnext",
-        "moduleResolution": "node",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
+        "esModuleInterop": true,
         "isolatedModules": true,
+        "skipLibCheck": true,
+        "incremental": true,
+        "target": "ES2017",
+        "module": "esnext",
+        "jsx": "react-jsx",
+        "allowJs": true,
+        "strict": true,
         "noEmit": true,
-        "jsx": "react-jsx"
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ],
+        "paths": {
+            "@/*": ["./*"]
+        }
     },
     "include": [
-        "src"
-    ]
+        ".next/dev/types/**/*.ts",
+        ".next/types/**/*.ts",
+        "next-env.d.ts",
+        "**/*.tsx",
+        "**/*.ts",
+        "**/*.mts"
+    ],
+    "exclude": ["node_modules"],
+    "author": "By John Michael"
 }

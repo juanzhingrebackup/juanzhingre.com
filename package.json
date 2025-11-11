@@ -1,55 +1,49 @@
 {
-  "name": "juanzhingre.com",
-  "version": "1.1.0",
-  "private": true,
-  "dependencies": {
-    "@emailjs/browser": "^4.4.1",
-    "@googlemaps/js-api-loader": "^1.16.2",
-    "@neondatabase/serverless": "^0.9.5",
-    "@types/google.maps": "^3.55.0",
-    "@types/node": "^16.18.126",
-    "@types/styled-components": "^5.1.34",
-    "@vercel/speed-insights": "^1.2.0",
-    "98.css": "^0.1.21",
-    "axios": "^1.12.2",
-    "framer-motion": "^12.23.12",
-    "nodemailer": "^7.0.6",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-icons": "^5.5.0",
-    "react-scripts": "5.0.1",
-    "styled-components": "^6.1.19",
-    "twilio": "^5.9.0",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "PORT=2509 react-scripts start",
-    "vercel": "npx vercel env pull .env.local && npx vercel dev --listen 2509",
-    "build": "react-scripts build"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@types/nodemailer": "^7.0.1",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
-    "concurrently": "^9.2.1",
-    "typescript": "4.9.5"
-  },
-  "engines": { "node": "20.x" }
+    "name": "juanzhingre.com",
+    "version": "1.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev -p 2509",
+        "lint": "next lint",
+        "format:check": "prettier --check .",
+        "format": "prettier --write .",
+        "build": "next build",
+        "start": "next start -p 2509"
+    },
+    "dependencies": {
+        "@googlemaps/js-api-loader": "^1.16.2",
+        "@neondatabase/serverless": "^0.9.5",
+        "@vercel/speed-insights": "^1.2.0",
+        "@types/google.maps": "^3.55.0",
+        "styled-components": "^6.1.19",
+        "@emailjs/browser": "^4.4.1",
+        "framer-motion": "^12.23.12",
+        "react-icons": "^5.5.0",
+        "nodemailer": "^7.0.6",
+        "web-vitals": "^2.1.4",
+        "react-dom": "19.2.0",
+        "98.css": "^0.1.21",
+        "twilio": "^5.9.0",
+        "axios": "^1.12.2",
+        "react": "19.2.0",
+        "next": "16.0.1"
+    },
+    "devDependencies": {
+        "@types/styled-components": "^5.1.34",
+        "eslint-config-next": "16.0.1",
+        "@types/nodemailer": "^7.0.1",
+        "@tailwindcss/postcss": "^4",
+        "@types/react-dom": "^19",
+        "concurrently": "^9.2.1",
+        "@types/react": "^19",
+        "@types/node": "^20",
+        "prettier": "^3.6.2",
+        "tailwindcss": "^4",
+        "typescript": "^5",
+        "eslint": "^9"
+    },
+    "engines": {
+        "node": "20.x"
+    },
+    "author": "By John Michael"
 }
