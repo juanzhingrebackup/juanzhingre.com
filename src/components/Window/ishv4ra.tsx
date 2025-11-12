@@ -1,6 +1,8 @@
+"use client";
+
 import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 import React, { useEffect, useState, useCallback } from 'react';
-import { photoCollections, photoData } from '../../data/photos';
+import { photoCollections, photoData } from '@/src/data/photos';
 import './ishv4ra.css';
 
 interface PhotoCollection {

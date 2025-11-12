@@ -2,13 +2,23 @@ import { neon } from '@neondatabase/serverless';
 
 class DatabaseService {
     constructor() {
-        this.sql = neon(process.env.DATABASE_URL);
+        this.sql = null;
+    }
+
+    getSql() {
+        if (!this.sql) {
+            if (!process.env.DATABASE_URL) {
+                throw new Error('DATABASE_URL environment variable is not set');
+            }
+            this.sql = neon(process.env.DATABASE_URL);
+        }
+        return this.sql;
     }
 
     async init() {
         try {
             // Create appointments table if it doesn't exist
-            await this.sql`
+            await this.getSql()`
                 CREATE TABLE IF NOT EXISTS appointments (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
@@ -45,7 +55,7 @@ class DatabaseService {
         } = appointmentData;
 
         try {
-            const result = await this.sql`
+            const result = await this.getSql()`
                 INSERT INTO appointments (
                     name, phone, cut, day, date, time, location, address, confirmation_code
                 ) VALUES (
@@ -69,7 +79,7 @@ class DatabaseService {
 
     async getAppointments() {
         try {
-            const result = await this.sql`
+            const result = await this.getSql()`
                 SELECT * FROM appointments 
                 ORDER BY created_at DESC
             `;
@@ -88,7 +98,7 @@ class DatabaseService {
 
     async deleteOldAppointments() {
         try {
-            const result = await this.sql`
+            const result = await this.getSql()`
                 DELETE FROM appointments 
                 WHERE created_at < NOW() - INTERVAL '7 days'
             `;
@@ -108,7 +118,7 @@ class DatabaseService {
 
     async getAppointmentById(id) {
         try {
-            const result = await this.sql`
+            const result = await this.getSql()`
                 SELECT * FROM appointments WHERE id = ${id}
             `;
             return {

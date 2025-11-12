@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Window as WindowType } from '../../types/desktop';
+import { Window as WindowType } from '@/src/types/desktop';
 import './Window.css';
 
 interface WindowProps {

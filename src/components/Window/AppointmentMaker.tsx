@@ -1,7 +1,9 @@
-import AddressAutocomplete from '../AddressAutocomplete/AddressAutocomplete';
-import { generateConfirmationCode } from '../../utils/confirmationCode';
-import DistanceValidator from '../DistanceValidator/DistanceValidator';
-import ConfirmationCode from './ConfirmationCode';
+"use client";
+
+import AddressAutocomplete from '@/src/components/AddressAutocomplete/AddressAutocomplete';
+import { generateConfirmationCode } from '@/src/utils/confirmationCode';
+import DistanceValidator from '@/src/components/DistanceValidator/DistanceValidator';
+import ConfirmationCode from '@/src/components/Window/ConfirmationCode';
 import React, { useState } from 'react';
 import './AppointmentMaker.css';
 

@@ -1,14 +1,16 @@
-import { Icon as IconType, Window as WindowType, DesktopState } from '../../types/desktop';
+"use client";
+
+import { Icon as IconType, Window as WindowType, DesktopState } from '@/src/types/desktop';
 import React, { useState, useCallback, useEffect } from 'react';
-import AppointmentMaker from '../Window/AppointmentMaker';
-import FullImageViewer from '../Window/FullImageViewer';
-import MusicWindow from '../Window/MusicWindow';
-import CreditsWindow from '../Window/Origins';
-import DemoPlayer from '../Window/DemoPlayer';
-import { photoData } from '../../data/photos';
-import Ishv4ra from '../Window/ishv4ra';
-import Window from '../Window/Window';
-import Icon from '../Icon/Icon';
+import AppointmentMaker from '@/src/components/Window/AppointmentMaker';
+import FullImageViewer from '@/src/components/Window/FullImageViewer';
+import MusicWindow from '@/src/components/Window/MusicWindow';
+import CreditsWindow from '@/src/components/Window/Origins';
+import DemoPlayer from '@/src/components/Window/DemoPlayer';
+import { photoData } from '@/src/data/photos';
+import Ishv4ra from '@/src/components/Window/ishv4ra';
+import Window from '@/src/components/Window/Window';
+import Icon from '@/src/components/Icon/Icon';
 import './Desktop.css';
 
 const Desktop: React.FC = () => {

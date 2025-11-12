@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from 'react';
-import { photoData } from '../../data/photos';
+import { photoData } from '@/src/data/photos';
 
 interface Photo {
   id: string;

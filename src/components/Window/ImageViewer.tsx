@@ -1,4 +1,6 @@
-import { photoData } from '../../data/photos';
+"use client";
+
+import { photoData } from '@/src/data/photos';
 import React, { useState } from 'react';
 import './ImageViewer.css';
 

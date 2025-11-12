@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Icon as IconType } from '../../types/desktop';
+import { Icon as IconType } from '@/src/types/desktop';
 import './Icon.css';
 
 interface IconProps {

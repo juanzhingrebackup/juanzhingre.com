@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
-import { photoData } from '../../data/photos';
+import { photoData } from '@/src/data/photos';
 import './FullImageViewer.css';
 
 interface Photo {

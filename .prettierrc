@@ -6,6 +6,5 @@
     "printWidth": 80,
     "useTabs": false,
     "tabWidth": 4,
-    "semi": true,
-    "author": "By John Michael"
+    "semi": true
 }

@@ -1,4 +1,6 @@
-import googleMapsService from '../../services/googleMapsService';
+"use client";
+
+import googleMapsService from '@/src/services/googleMapsService';
 import React, { useState, useEffect } from 'react';
 import './DistanceValidator.css';
 

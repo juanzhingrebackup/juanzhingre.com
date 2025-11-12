@@ -1,4 +1,6 @@
-import googleMapsService from '../../services/googleMapsService';
+"use client";
+
+import googleMapsService from '@/src/services/googleMapsService';
 import React, { useState, useEffect, useRef } from 'react';
 import './AddressAutocomplete.css';
 

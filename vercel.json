@@ -1,22 +1,22 @@
 {
     "functions": {
-        "api/database/appointments.js": {
+        "app/api/database/appointments/route.ts": {
             "memory": 512,
             "maxDuration": 30
         },
-        "api/sms/send-confirmation.js": {
+        "app/api/sms/send-confirmation/route.ts": {
             "memory": 256,
             "maxDuration": 10
         },
-        "api/sms/send-business-notification.js": {
+        "app/api/sms/send-business-notification/route.ts": {
             "memory": 256,
             "maxDuration": 10
         },
-        "api/email/send-sms-failure.js": {
+        "app/api/email/send-sms-failure/route.ts": {
             "memory": 256,
             "maxDuration": 10
         },
-        "api/email/send-business-notification.js": {
+        "app/api/email/send-business-notification/route.ts": {
             "memory": 256,
             "maxDuration": 10
         }

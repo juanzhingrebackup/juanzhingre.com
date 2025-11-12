@@ -10,7 +10,7 @@ Produced and creative decisions approved by Juan Zhingre
 
 1. Clone
     ```bash
-    git clone https://github.com/byjohnmichael/juanzhingre.comok le.git
+    git clone https://github.com/byjohnmichael/juanzhingre.com.git
     ```
 2. Navigate
     ```bash
