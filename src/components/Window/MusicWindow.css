@@ -4,10 +4,7 @@
     width: 100%;
     background: #ffffff;
     border: 2px solid black;
-    font-family: "Perfect DOS VGA 437",
-                "Courier New",
-                Courier,
-                monospace;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
 }
 
 .leftSection {

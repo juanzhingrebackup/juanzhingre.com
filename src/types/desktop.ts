@@ -1,7 +1,7 @@
 export interface Icon {
     id: string;
     name: string;
-    type: 'app' | 'folder' | 'file';
+    type: "app" | "folder" | "file";
     position: { x: number; y: number };
     icon: string;
     color: string;
@@ -11,7 +11,7 @@ export interface Icon {
 export interface Window {
     id: string;
     title: string;
-    type: 'app' | 'folder' | 'game';
+    type: "app" | "folder" | "game";
     position: { x: number; y: number };
     size: { width: number; height: number };
     isMinimized: boolean;

@@ -1,8 +1,8 @@
 "use client";
 
-import googleMapsService from '@/src/services/googleMapsService';
-import React, { useState, useEffect, useRef } from 'react';
-import './AddressAutocomplete.css';
+import googleMapsService from "@/src/services/googleMapsService";
+import React, { useState, useEffect, useRef } from "react";
+import "./AddressAutocomplete.css";
 
 interface AddressAutocompleteProps {
     value: string;
@@ -20,7 +20,16 @@ interface Prediction {
     description: string;
 }
 
-const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({value, onChange, onPlaceSelect, onAddressSelected, isValid = false, disabled = false, placeholder = "Enter your address", className = ""}) => {
+const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
+    value,
+    onChange,
+    onPlaceSelect,
+    onAddressSelected,
+    isValid = false,
+    disabled = false,
+    placeholder = "Enter your address",
+    className = ""
+}) => {
     const [predictions, setPredictions] = useState<Prediction[]>([]);
     const [showPredictions, setShowPredictions] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -50,18 +59,25 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({value, onChang
             setIsLoading(true);
             try {
                 await googleMapsService.initialize();
-                googleMapsService.getPlacePredictions(value, (predictions: any, status: any) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-                        setPredictions(predictions.slice(0, 5)); // Limit to 5 predictions
-                        setShowPredictions(true);
-                    } else {
-                        setPredictions([]);
-                        setShowPredictions(false);
+                googleMapsService.getPlacePredictions(
+                    value,
+                    (predictions: any, status: any) => {
+                        if (
+                            status ===
+                                google.maps.places.PlacesServiceStatus.OK &&
+                            predictions
+                        ) {
+                            setPredictions(predictions.slice(0, 5)); // Limit to 5 predictions
+                            setShowPredictions(true);
+                        } else {
+                            setPredictions([]);
+                            setShowPredictions(false);
+                        }
+                        setIsLoading(false);
                     }
-                    setIsLoading(false);
-                });
+                );
             } catch (error) {
-                console.error('Error getting predictions:', error);
+                console.error("Error getting predictions:", error);
                 setPredictions([]);
                 setShowPredictions(false);
                 setIsLoading(false);
@@ -95,14 +111,20 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({value, onChang
         }
 
         try {
-        await googleMapsService.initialize();
-        googleMapsService.getPlaceDetails(prediction.place_id, (place: any, status: any) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-                onPlaceSelect(place);
-            }
-        });
+            await googleMapsService.initialize();
+            googleMapsService.getPlaceDetails(
+                prediction.place_id,
+                (place: any, status: any) => {
+                    if (
+                        status === google.maps.places.PlacesServiceStatus.OK &&
+                        place
+                    ) {
+                        onPlaceSelect(place);
+                    }
+                }
+            );
         } catch (error) {
-            console.error('Error getting place details:', error);
+            console.error("Error getting place details:", error);
         }
     };
 
@@ -120,7 +142,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({value, onChang
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Escape') {
+        if (e.key === "Escape") {
             setShowPredictions(false);
         }
     };
@@ -145,20 +167,21 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({value, onChang
                     <span className="address-checkmark">✓</span>
                 )}
             </div>
-            
+
             {showPredictions && predictions.length > 0 && (
-            <div className="predictions-dropdown">
-                {predictions.map((prediction) => (
-                <div
-                    key={prediction.place_id}
-                    className="prediction-item"
-                    onClick={() => handlePredictionClick(prediction)}
-                >
-                    {prediction.description}
+                <div className="predictions-dropdown">
+                    {predictions.map((prediction) => (
+                        <div
+                            key={prediction.place_id}
+                            className="prediction-item"
+                            onClick={() => handlePredictionClick(prediction)}
+                        >
+                            {prediction.description}
+                        </div>
+                    ))}
                 </div>
-                ))}
-            </div>
             )}
         </div>
     );
-}; export default AddressAutocomplete; // By John Michael
+};
+export default AddressAutocomplete; // By John Michael

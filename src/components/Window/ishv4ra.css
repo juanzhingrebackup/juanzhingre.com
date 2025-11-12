@@ -133,7 +133,9 @@
     cursor: pointer;
     font-size: 18px;
     font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
-    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    box-shadow:
+        inset -1px -1px #ffffff,
+        inset 1px 1px #808080;
     transition: all 0.1s ease;
     min-width: 40px;
     height: 36px;
@@ -148,18 +150,22 @@
 
 .nav-button:active:not(:disabled) {
     background: #a0a0a0;
-    box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff;
+    box-shadow:
+        inset 1px 1px #808080,
+        inset -1px -1px #ffffff;
 }
 
 .nav-button:disabled {
     background: #a0a0a0 !important;
     color: #666666 !important;
     cursor: not-allowed !important;
-    box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff !important;
+    box-shadow:
+        inset 1px 1px #808080,
+        inset -1px -1px #ffffff !important;
 }
 
 .nav-button.prev-button {
-    background: #4CAF50;
+    background: #4caf50;
     color: white;
 }
 
@@ -173,7 +179,7 @@
 }
 
 .nav-button.next-button {
-    background: #4CAF50;
+    background: #4caf50;
     color: white;
 }
 

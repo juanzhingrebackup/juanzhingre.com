@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import emailService from '@/src/services/emailService.js';
+import emailService from "@/src/services/emailService.js";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,21 +12,24 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Missing appointment details or SMS error'
+                    error: "Missing appointment details or SMS error"
                 },
                 { status: 400 }
             );
         }
 
         // Send the SMS failure notification email
-        const result = await emailService.sendSmsFailureNotificationDev(appointmentDetails, smsError);
+        const result = await emailService.sendSmsFailureNotificationDev(
+            appointmentDetails,
+            smsError
+        );
 
         // Return upon success
         if (result.success) {
             return NextResponse.json(
                 {
                     success: true,
-                    message: 'SMS failure notification email sent successfully',
+                    message: "SMS failure notification email sent successfully",
                     messageId: result.messageId
                 },
                 { status: 200 }
@@ -41,11 +44,11 @@ export async function POST(req: NextRequest) {
             );
         }
     } catch (error) {
-        console.error('Email SMS Failure Error:', error);
+        console.error("Email SMS Failure Error:", error);
         return NextResponse.json(
             {
                 success: false,
-                error: 'Failed to send SMS failure notification email'
+                error: "Failed to send SMS failure notification email"
             },
             { status: 500 }
         );

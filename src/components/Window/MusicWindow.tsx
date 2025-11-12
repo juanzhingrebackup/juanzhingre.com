@@ -1,27 +1,27 @@
-import './MusicWindow.css';
-import React from 'react';
+import "./MusicWindow.css";
+import React from "react";
 
 const MusicWindow: React.FC = () => {
     const musicServices = [
         {
-            name: 'Spotify Music',
-            url: 'https://open.spotify.com/artist/4pf6I2Hikzc9N7A36lKlrN?si=uwjBptUyQymSU4VZTz1fFg',
-            icon: '/social-icons/spotify.png'
+            name: "Spotify Music",
+            url: "https://open.spotify.com/artist/4pf6I2Hikzc9N7A36lKlrN?si=uwjBptUyQymSU4VZTz1fFg",
+            icon: "/social-icons/spotify.png"
         },
         {
-            name: 'Apple Music',
-            url: 'https://music.apple.com/us/artist/juan-zhingre/1756562979',
-            icon: '/social-icons/apple.png'
+            name: "Apple Music",
+            url: "https://music.apple.com/us/artist/juan-zhingre/1756562979",
+            icon: "/social-icons/apple.png"
         },
         {
-            name: 'Youtube Music',
-            url: 'https://music.youtube.com/channel/UCtAbnEnfF5wnlBrmJWWEFRg',
-            icon: '/social-icons/youtube.png'
+            name: "Youtube Music",
+            url: "https://music.youtube.com/channel/UCtAbnEnfF5wnlBrmJWWEFRg",
+            icon: "/social-icons/youtube.png"
         },
         {
-            name: 'Amazon Music',
-            url: 'https://music.amazon.com/artists/B0D96PWDCL/juan-zhingre?do=play&agent=googleAssistant&ref=dmm_seo_google_gkp_artists',
-            icon: '/social-icons/amazon.png'
+            name: "Amazon Music",
+            url: "https://music.amazon.com/artists/B0D96PWDCL/juan-zhingre?do=play&agent=googleAssistant&ref=dmm_seo_google_gkp_artists",
+            icon: "/social-icons/amazon.png"
         }
     ];
 
@@ -32,22 +32,27 @@ const MusicWindow: React.FC = () => {
                     <img src="/social-icons/profile.jpg" alt="Profile" />
                 </div>
                 <div className="profileText">
-                    hey this is my music<br />
+                    hey this is my music
+                    <br />
                     hope you enjoy :)
                 </div>
             </div>
-            
+
             <div className="rightSection">
                 <div className="serviceList">
                     {musicServices.map((service, index) => (
-                        <a 
-                            key={index} 
+                        <a
+                            key={index}
                             className="serviceItem"
-                            href={service.url} 
-                            target="_blank" 
+                            href={service.url}
+                            target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <img src={service.icon} alt={service.name} className="serviceIcon" />
+                            <img
+                                src={service.icon}
+                                alt={service.name}
+                                className="serviceIcon"
+                            />
                             {service.name}
                         </a>
                     ))}
@@ -55,4 +60,5 @@ const MusicWindow: React.FC = () => {
             </div>
         </div>
     );
-}; export default MusicWindow; // By John Michael
+};
+export default MusicWindow; // By John Michael

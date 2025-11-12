@@ -1,16 +1,13 @@
 .desktopContainer {
     width: 100vw;
     height: 100vh;
-    background-image: url('/images/background.webp');
+    background-image: url("/images/background.webp");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
-    font-family: "Perfect DOS VGA 437",
-                "Courier New",
-                Courier,
-                monospace;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
 }
 
 @media (max-width: 768px) {
@@ -133,7 +130,7 @@
         font-size: 12px;
         flex-shrink: 0;
     }
-    
+
     .taskbarCloseButton {
         width: 20px;
         height: 20px;

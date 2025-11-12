@@ -38,9 +38,9 @@ Produced and creative decisions approved by Juan Zhingre
     npm run build
     ```
 8. Start
-   ```bash
-   npm run start
-   ```
+    ```bash
+    npm run start
+    ```
 
 ---
 

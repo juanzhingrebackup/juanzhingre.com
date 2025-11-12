@@ -1,6 +1,6 @@
 export const generateConfirmationCode = () => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let code = '';
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let code = "";
     for (let i = 0; i < 4; i++) {
         code += letters.charAt(Math.floor(Math.random() * letters.length));
     }

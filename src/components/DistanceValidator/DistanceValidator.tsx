@@ -1,8 +1,8 @@
 "use client";
 
-import googleMapsService from '@/src/services/googleMapsService';
-import React, { useState, useEffect } from 'react';
-import './DistanceValidator.css';
+import googleMapsService from "@/src/services/googleMapsService";
+import React, { useState, useEffect } from "react";
+import "./DistanceValidator.css";
 
 interface DistanceValidatorProps {
     address: string;
@@ -11,7 +11,12 @@ interface DistanceValidatorProps {
     isAddressSelected?: boolean; // Whether user selected from autocomplete
 }
 
-const DistanceValidator: React.FC<DistanceValidatorProps> = ({address, businessLocation, onValidationResult, isAddressSelected = false}) => {
+const DistanceValidator: React.FC<DistanceValidatorProps> = ({
+    address,
+    businessLocation,
+    onValidationResult,
+    isAddressSelected = false
+}) => {
     const [isValidating, setIsValidating] = useState(false);
     const [validationResult, setValidationResult] = useState<{
         isValid: boolean;
@@ -37,21 +42,24 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({address, businessL
             setIsValidating(true);
             try {
                 await googleMapsService.initialize();
-                const result = await googleMapsService.calculateDistance(businessLocation, address);
-                
+                const result = await googleMapsService.calculateDistance(
+                    businessLocation,
+                    address
+                );
+
                 const isValid = result.distance <= 10; // 10 miles limit
                 const validation = {
                     isValid,
                     distance: result.distance
                 };
-                
+
                 setValidationResult(validation);
                 onValidationResult(isValid, result.distance);
             } catch (error) {
-                console.error('Distance validation error:', error);
+                console.error("Distance validation error:", error);
                 const validation = {
                     isValid: false,
-                    error: 'Unable to validate distance'
+                    error: "Unable to validate distance"
                 };
                 setValidationResult(validation);
                 onValidationResult(false);
@@ -80,11 +88,9 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({address, businessL
                 <div className="validation-status invalid">
                     <span className="status-icon">✗</span>
                     <span className="status-text">
-                        {validationResult.error ? (
-                            validationResult.error
-                        ) : (
-                            `Outside service area (${validationResult.distance?.toFixed(1)} miles) - Must be 10 miles within Provo, UT`
-                        )}
+                        {validationResult.error
+                            ? validationResult.error
+                            : `Outside service area (${validationResult.distance?.toFixed(1)} miles) - Must be 10 miles within Provo, UT`}
                     </span>
                 </div>
             </div>
@@ -93,4 +99,5 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({address, businessL
     // Don't show anything if address is valid (within service area)
     // The green checkmark will be shown by the AddressAutocomplete component
     return null;
-}; export default DistanceValidator; // By John Michael
+};
+export default DistanceValidator; // By John Michael

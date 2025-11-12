@@ -1,8 +1,8 @@
 "use client";
 
-import { photoData } from '@/src/data/photos';
-import React, { useState } from 'react';
-import './ImageViewer.css';
+import { photoData } from "@/src/data/photos";
+import React, { useState } from "react";
+import "./ImageViewer.css";
 
 interface Photo {
     id: string;
@@ -21,55 +21,57 @@ interface ImageViewerProps {
     onOpenPhoto: (photo: Photo) => void;
 }
 
-const ImageViewer: React.FC<ImageViewerProps> = ({ collection, onOpenPhoto }) => {
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    
+const ImageViewer: React.FC<ImageViewerProps> = ({
+    collection,
+    onOpenPhoto
+}) => {
+    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
     // Filter photos for this collection
-    const photos = photoData.filter(photo => photo.collection === collection.id);
+    const photos = photoData.filter(
+        (photo) => photo.collection === collection.id
+    );
 
     return (
         <div className="container">
             <div className="header">
-                <h2 className="title">
-                    {collection.name}
-                </h2>
+                <h2 className="title">{collection.name}</h2>
                 <div className="headerInfo">
-                    <p className="photoCount">
-                        {photos.length} photos
-                    </p>
+                    <p className="photoCount">{photos.length} photos</p>
                     <div className="viewModeButtons">
-                        <button 
+                        <button
                             className="viewMode === 'grid' ? default : ''"
-                            onClick={() => setViewMode('grid')}
+                            onClick={() => setViewMode("grid")}
                         >
                             Grid
                         </button>
-                        <button 
+                        <button
                             className="viewMode === 'list' ? default : ''"
-                            onClick={() => setViewMode('list')}
+                            onClick={() => setViewMode("list")}
                         >
                             List
                         </button>
                     </div>
                 </div>
             </div>
-            
-            {viewMode === 'grid' ? (
+
+            {viewMode === "grid" ? (
                 <div className="gridContainer">
-                    {photos.map(photo => (
-                        <div 
-                            key={photo.id} 
+                    {photos.map((photo) => (
+                        <div
+                            key={photo.id}
                             className="gridItem"
                             onClick={() => onOpenPhoto(photo)}
                         >
                             <div className="imagePreview">
-                                <img 
+                                <img
                                     src={photo.path}
                                     alt={photo.name}
                                     onError={(e) => {
                                         // Fallback for failed images
-                                        const img = e.target as HTMLImageElement;
-                                        img.style.display = 'none';
+                                        const img =
+                                            e.target as HTMLImageElement;
+                                        img.style.display = "none";
                                         const parent = img.parentElement;
                                         if (parent) {
                                             parent.innerHTML = `<div class="imageError">Image Error</div>`;
@@ -77,28 +79,27 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ collection, onOpenPhoto }) =>
                                     }}
                                 />
                             </div>
-                            <div className="imageLabel">
-                                {photo.name}
-                            </div>
+                            <div className="imageLabel">{photo.name}</div>
                         </div>
                     ))}
                 </div>
             ) : (
                 <div className="listContainer">
-                    {photos.map(photo => (
-                        <div 
+                    {photos.map((photo) => (
+                        <div
                             key={photo.id}
                             className="listItem"
                             onClick={() => onOpenPhoto(photo)}
                         >
                             <div className="listImagePreview">
-                                <img 
+                                <img
                                     src={photo.path}
                                     alt={photo.name}
                                     onError={(e) => {
                                         // Fallback for failed images
-                                        const img = e.target as HTMLImageElement;
-                                        img.style.display = 'none';
+                                        const img =
+                                            e.target as HTMLImageElement;
+                                        img.style.display = "none";
                                         const parent = img.parentElement;
                                         if (parent) {
                                             parent.innerHTML = `<div class="listImageError">Error</div>`;
@@ -106,13 +107,12 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ collection, onOpenPhoto }) =>
                                     }}
                                 />
                             </div>
-                            <div className="listImageLabel">
-                                {photo.name}
-                            </div>
+                            <div className="listImageLabel">{photo.name}</div>
                         </div>
                     ))}
                 </div>
             )}
         </div>
     );
-}; export default ImageViewer; // By John Michael
+};
+export default ImageViewer; // By John Michael

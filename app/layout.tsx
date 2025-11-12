@@ -1,21 +1,21 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import '98.css';
+import type { Metadata } from "next";
+import "./globals.css";
+import "98.css";
 
 export const metadata: Metadata = {
-    title: 'juanzhingre.com',
-    description: 'Portfolio website for Juan Zhingre',
-    manifest: '/manifest.json',
+    title: "juanzhingre.com",
+    description: "Portfolio website for Juan Zhingre",
+    manifest: "/manifest.json",
     icons: {
-        icon: '/favicon.png',
-        apple: '/favicon.png',
+        icon: "/favicon.png",
+        apple: "/favicon.png"
     },
-    themeColor: '#000000',
-    viewport: 'width=device-width, initial-scale=1',
+    themeColor: "#000000",
+    viewport: "width=device-width, initial-scale=1"
 };
 
 export default function RootLayout({
-    children,
+    children
 }: {
     children: React.ReactNode;
 }) {
@@ -25,9 +25,7 @@ export default function RootLayout({
                 <meta charSet="utf-8" />
                 <meta name="Juan Zhingre" content="Juan Zhingre" />
             </head>
-            <body>
-                {children}
-            </body>
+            <body>{children}</body>
         </html>
     );
 } // By John Michael

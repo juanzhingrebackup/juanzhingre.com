@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Window as WindowType } from '@/src/types/desktop';
-import './Window.css';
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { Window as WindowType } from "@/src/types/desktop";
+import "./Window.css";
 
 interface WindowProps {
     window: WindowType;
@@ -15,19 +15,19 @@ interface WindowProps {
     children?: React.ReactNode;
 }
 
-const Window: React.FC<WindowProps> = ({ 
-    window, 
-    onClose, 
-    onMinimize, 
-    onMaximize, 
-    onMove, 
-    onResize, 
+const Window: React.FC<WindowProps> = ({
+    window,
+    onClose,
+    onMinimize,
+    onMaximize,
+    onMove,
+    onResize,
     onFocus,
-    children 
+    children
 }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
-    
+
     const windowRef = useRef<HTMLDivElement>(null);
     const isDraggingRef = useRef(false);
     const isResizingRef = useRef(false);
@@ -35,26 +35,37 @@ const Window: React.FC<WindowProps> = ({
     const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
     // Optimized mouse move handler using refs to avoid re-creation
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (isDraggingRef.current) {
-            const newX = e.clientX - dragOffsetRef.current.x;
-            const newY = e.clientY - dragOffsetRef.current.y;
-            
-            // Use requestAnimationFrame for smooth updates
-            requestAnimationFrame(() => {
-                onMove(window.id, newX, newY);
-            });
-        }
-        
-        if (isResizingRef.current) {
-            const newWidth = Math.max(300, resizeStartRef.current.width + (e.clientX - resizeStartRef.current.x));
-            const newHeight = Math.max(200, resizeStartRef.current.height + (e.clientY - resizeStartRef.current.y));
-            
-            requestAnimationFrame(() => {
-                onResize(window.id, newWidth, newHeight);
-            });
-        }
-    }, [window.id, onMove, onResize]);
+    const handleMouseMove = useCallback(
+        (e: MouseEvent) => {
+            if (isDraggingRef.current) {
+                const newX = e.clientX - dragOffsetRef.current.x;
+                const newY = e.clientY - dragOffsetRef.current.y;
+
+                // Use requestAnimationFrame for smooth updates
+                requestAnimationFrame(() => {
+                    onMove(window.id, newX, newY);
+                });
+            }
+
+            if (isResizingRef.current) {
+                const newWidth = Math.max(
+                    300,
+                    resizeStartRef.current.width +
+                        (e.clientX - resizeStartRef.current.x)
+                );
+                const newHeight = Math.max(
+                    200,
+                    resizeStartRef.current.height +
+                        (e.clientY - resizeStartRef.current.y)
+                );
+
+                requestAnimationFrame(() => {
+                    onResize(window.id, newWidth, newHeight);
+                });
+            }
+        },
+        [window.id, onMove, onResize]
+    );
 
     // Optimized mouse up handler
     const handleMouseUp = useCallback(() => {
@@ -67,48 +78,63 @@ const Window: React.FC<WindowProps> = ({
     // Set up event listeners only when needed
     useEffect(() => {
         if (isDragging || isResizing) {
-            document.addEventListener('mousemove', handleMouseMove, { passive: true });
-            document.addEventListener('mouseup', handleMouseUp, { passive: true });
-            
+            document.addEventListener("mousemove", handleMouseMove, {
+                passive: true
+            });
+            document.addEventListener("mouseup", handleMouseUp, {
+                passive: true
+            });
+
             return () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
             };
         }
     }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
-        onFocus(window.id);
-        
-        // Check if clicking on title bar or any element within it
-        const titleBar = windowRef.current?.querySelector('[data-title-bar]');
-        if (titleBar && windowRef.current && (e.target === titleBar || titleBar.contains(e.target as Node))) {
-            const rect = windowRef.current.getBoundingClientRect();
-            const offsetX = e.clientX - rect.left;
-            const offsetY = e.clientY - rect.top;
-            
-            dragOffsetRef.current = { x: offsetX, y: offsetY };
-            isDraggingRef.current = true;
-            setIsDragging(true);
-        }
-    }, [onFocus, window.id]);
+    const handleMouseDown = useCallback(
+        (e: React.MouseEvent) => {
+            onFocus(window.id);
 
-    const handleResizeStart = useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        resizeStartRef.current = {
-            x: e.clientX,
-            y: e.clientY,
-            width: window.size.width,
-            height: window.size.height
-        };
-        isResizingRef.current = true;
-        setIsResizing(true);
-    }, [window.size.width, window.size.height]);
+            // Check if clicking on title bar or any element within it
+            const titleBar =
+                windowRef.current?.querySelector("[data-title-bar]");
+            if (
+                titleBar &&
+                windowRef.current &&
+                (e.target === titleBar || titleBar.contains(e.target as Node))
+            ) {
+                const rect = windowRef.current.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
+
+                dragOffsetRef.current = { x: offsetX, y: offsetY };
+                isDraggingRef.current = true;
+                setIsDragging(true);
+            }
+        },
+        [onFocus, window.id]
+    );
+
+    const handleResizeStart = useCallback(
+        (e: React.MouseEvent) => {
+            e.stopPropagation();
+            resizeStartRef.current = {
+                x: e.clientX,
+                y: e.clientY,
+                width: window.size.width,
+                height: window.size.height
+            };
+            isResizingRef.current = true;
+            setIsResizing(true);
+        },
+        [window.size.width, window.size.height]
+    );
 
     return (
         <div
             ref={windowRef}
-            className={`windowContainer ${isDragging ? 'dragging' : ''} ${window.isMinimized ? 'minimized' : ''} ${window.isMaximized ? 'maximized' : ''}`}
+            className={`windowContainer ${isDragging ? "dragging" : ""} ${window.isMinimized ? "minimized" : ""} ${window.isMaximized ? "maximized" : ""}`}
             style={{
                 left: window.position.x,
                 top: window.position.y,
@@ -122,7 +148,7 @@ const Window: React.FC<WindowProps> = ({
                 <div className="titleBar" data-title-bar>
                     <div className="titleBarText">{window.title}</div>
                     <div className="titleBarControls">
-                        <button 
+                        <button
                             aria-label="Close"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -135,18 +161,14 @@ const Window: React.FC<WindowProps> = ({
                         </button>
                     </div>
                 </div>
-                
-                <div className="windowBody">
-                    {children}
-                </div>
+
+                <div className="windowBody">{children}</div>
             </div>
-            
+
             {!window.isMaximized && (
-                <div
-                    className="resizeHandle"
-                    onMouseDown={handleResizeStart}
-                />
+                <div className="resizeHandle" onMouseDown={handleResizeStart} />
             )}
         </div>
     );
-}; export default Window; // By John Michael
+};
+export default Window; // By John Michael

@@ -1,14 +1,14 @@
-import databaseService from '@/src/services/databaseService.js';
-import { NextRequest, NextResponse } from 'next/server';
+import databaseService from "@/src/services/databaseService.js";
+import { NextRequest, NextResponse } from "next/server";
 
 // Helper function to check database configuration
 function checkDatabaseConfig() {
     if (!process.env.DATABASE_URL) {
-        console.error('DATABASE_URL environment variable is not set');
+        console.error("DATABASE_URL environment variable is not set");
         return NextResponse.json(
             {
                 success: false,
-                error: 'Database configuration missing'
+                error: "Database configuration missing"
             },
             { status: 500 }
         );
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 
         // Get all appointments
         const result = await databaseService.getAppointments();
-        
+
         // Return upon success
         if (result.success) {
             return NextResponse.json(
@@ -45,11 +45,11 @@ export async function GET(req: NextRequest) {
             );
         }
     } catch (error) {
-        console.error('Error fetching appointments:', error);
+        console.error("Error fetching appointments:", error);
         return NextResponse.json(
             {
                 success: false,
-                error: 'Failed to fetch appointments'
+                error: "Failed to fetch appointments"
             },
             { status: 500 }
         );
@@ -75,16 +75,34 @@ export async function POST(req: NextRequest) {
             location,
             address,
             confirmationCode,
-            status = 'confirmed'
+            status = "confirmed"
         } = body;
 
         // Validate required fields
-        if (!name || !phone || !cut || !day || !date || !time || !location || !confirmationCode) {
+        if (
+            !name ||
+            !phone ||
+            !cut ||
+            !day ||
+            !date ||
+            !time ||
+            !location ||
+            !confirmationCode
+        ) {
             return NextResponse.json(
-                { 
+                {
                     success: false,
-                    error: 'Missing required fields',
-                    required: ['name', 'phone', 'cut', 'day', 'date', 'time', 'location', 'confirmationCode']
+                    error: "Missing required fields",
+                    required: [
+                        "name",
+                        "phone",
+                        "cut",
+                        "day",
+                        "date",
+                        "time",
+                        "location",
+                        "confirmationCode"
+                    ]
                 },
                 { status: 400 }
             );
@@ -109,7 +127,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
                 {
                     success: true,
-                    message: 'Appointment created successfully',
+                    message: "Appointment created successfully",
                     appointment: result.appointment
                 },
                 { status: 201 }
@@ -124,11 +142,11 @@ export async function POST(req: NextRequest) {
             );
         }
     } catch (error) {
-        console.error('Error creating appointment:', error);
+        console.error("Error creating appointment:", error);
         return NextResponse.json(
             {
                 success: false,
-                error: 'Failed to create appointment'
+                error: "Failed to create appointment"
             },
             { status: 500 }
         );

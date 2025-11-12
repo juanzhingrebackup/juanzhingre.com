@@ -1,12 +1,12 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 class EmailService {
     constructor() {
         this.transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: parseInt(process.env.EMAIL_PORT, 10),
-            secure: process.env.EMAIL_PORT === '465',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+            secure: process.env.EMAIL_PORT === "465",
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
         });
     }
 
@@ -17,17 +17,20 @@ class EmailService {
                 to,
                 subject,
                 text: message,
-                html: message.replace(/\n/g, '<br>'),
+                html: message.replace(/\n/g, "<br>")
             };
             const result = await this.transporter.sendMail(mailOptions);
             return { success: true, messageId: result.messageId };
         } catch (error) {
-            return { success: false, error: error.message || 'Unknown error occurred' };
+            return {
+                success: false,
+                error: error.message || "Unknown error occurred"
+            };
         }
     }
 
-  smsFailureNotificationDev(d, smsError) {
-        const subject = 'SMS Failure - Appointment Booking Issue';
+    smsFailureNotificationDev(d, smsError) {
+        const subject = "SMS Failure - Appointment Booking Issue";
         const message = `
             SMS Sending Failed for Appointment Booking
 
@@ -38,7 +41,7 @@ class EmailService {
             - Day: ${d.day}
             - Time: ${d.time}
             - Location: ${d.location}
-            ${d.address ? `- Address: ${d.address}` : ''}
+            ${d.address ? `- Address: ${d.address}` : ""}
 
             SMS Error Details:
             ${smsError}
@@ -49,8 +52,8 @@ class EmailService {
         return { subject, message };
     }
 
-  smsFailureNotificationClient(d) {
-        const subject = 'SMS Notification Failed - Manual Follow-up Required';
+    smsFailureNotificationClient(d) {
+        const subject = "SMS Notification Failed - Manual Follow-up Required";
         const message = `
             Hello,
 
@@ -63,7 +66,7 @@ class EmailService {
             - Day: ${d.day}
             - Time: ${d.time}
             - Location: ${d.location}
-            ${d.address ? `- Address: ${d.address}` : ''}
+            ${d.address ? `- Address: ${d.address}` : ""}
 
             Please contact the customer directly to confirm their appointment.
 
@@ -73,7 +76,7 @@ class EmailService {
     }
 
     appointmentReminder(d) {
-        const subject = 'New Appointment Booking Reminder';
+        const subject = "New Appointment Booking Reminder";
         const message = `
             New Appointment Booked!
 
@@ -84,7 +87,7 @@ class EmailService {
             - Day: ${d.day}
             - Time: ${d.time}
             - Location: ${d.location}
-            ${d.address ? `- Address: ${d.address}` : ''}
+            ${d.address ? `- Address: ${d.address}` : ""}
 
             The customer has been sent an SMS confirmation.
 
@@ -99,7 +102,10 @@ class EmailService {
     }
 
     async sendSmsFailureNotificationDev(d, smsError) {
-        const { subject, message } = this.smsFailureNotificationDev(d, smsError);
+        const { subject, message } = this.smsFailureNotificationDev(
+            d,
+            smsError
+        );
         return await this.sendEmail(process.env.EMAIL_FROM, subject, message);
     }
 
@@ -114,7 +120,11 @@ class EmailService {
     }
 
     async sendGeneralNotification(subject, message) {
-        const { subject: s, message: m } = this.generalNotification(subject, message);
+        const { subject: s, message: m } = this.generalNotification(
+            subject,
+            message
+        );
         return await this.sendEmail(process.env.EMAIL_FROM, s, m);
     }
-} export default new EmailService(); // By John Michael
+}
+export default new EmailService(); // By John Michael

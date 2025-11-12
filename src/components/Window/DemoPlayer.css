@@ -6,10 +6,7 @@
     max-height: 80vh;
     background: white;
     border: 2px solid black;
-    font-family: "Perfect DOS VGA 437",
-                "Courier New",
-                Courier,
-                monospace;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
 }
 
 .tableContainer {
@@ -103,7 +100,7 @@
     font-size: 10px;
     color: #666;
     margin-right: 8px;
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -120,7 +117,7 @@
 }
 
 .playButton:active {
-    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1);
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .playButtonContainer {

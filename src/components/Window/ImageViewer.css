@@ -63,13 +63,17 @@
     cursor: pointer;
     background: #ffffff;
     border: 2px solid #808080;
-    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    box-shadow:
+        inset -1px -1px #ffffff,
+        inset 1px 1px #808080;
     transition: all 0.1s ease;
 }
 
 .gridItem:hover {
     transform: scale(1.02);
-    box-shadow: inset -2px -2px #ffffff, inset 2px 2px #808080;
+    box-shadow:
+        inset -2px -2px #ffffff,
+        inset 2px 2px #808080;
 }
 
 .imagePreview {
@@ -120,7 +124,9 @@
     border: 1px solid #808080;
     border-radius: 4px;
     cursor: pointer;
-    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+    box-shadow:
+        inset -1px -1px #ffffff,
+        inset 1px 1px #808080;
     transition: all 0.1s ease;
 }
 

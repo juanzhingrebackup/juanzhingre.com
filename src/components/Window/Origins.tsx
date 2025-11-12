@@ -1,5 +1,5 @@
-import React from 'react';
-import './Origins.css';
+import React from "react";
+import "./Origins.css";
 
 interface CreditsWindowProps {
     onClose: () => void;
@@ -8,17 +8,16 @@ interface CreditsWindowProps {
 const CreditsWindow: React.FC<CreditsWindowProps> = ({ onClose }) => {
     return (
         <div className="container">
-            <h1 className="title">
-                Origins
-            </h1>
-            
+            <h1 className="title">Origins</h1>
+
             <div className="content">
                 <div className="creditSection">
-                    Directed and creative decisions made<br />
+                    Directed and creative decisions made
+                    <br />
                     <strong>
-                        <a 
-                            href="https://byjohmichael.com" 
-                            target="_blank" 
+                        <a
+                            href="https://byjohmichael.com"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="link"
                         >
@@ -27,11 +26,14 @@ const CreditsWindow: React.FC<CreditsWindowProps> = ({ onClose }) => {
                     </strong>
                 </div>
                 <div>
-                    Produced and creative decisions approved<br />
-                    <strong>by Juan Zhingre</strong><br />
+                    Produced and creative decisions approved
+                    <br />
+                    <strong>by Juan Zhingre</strong>
+                    <br />
                     <span className="volume-text">volume 1.1.0</span>
                 </div>
             </div>
         </div>
     );
-}; export default CreditsWindow; // By John Michael
+};
+export default CreditsWindow; // By John Michael

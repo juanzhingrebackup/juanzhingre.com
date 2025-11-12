@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { neon } from "@neondatabase/serverless";
 
 class DatabaseService {
     constructor() {
@@ -8,7 +8,7 @@ class DatabaseService {
     getSql() {
         if (!this.sql) {
             if (!process.env.DATABASE_URL) {
-                throw new Error('DATABASE_URL environment variable is not set');
+                throw new Error("DATABASE_URL environment variable is not set");
             }
             this.sql = neon(process.env.DATABASE_URL);
         }
@@ -36,7 +36,7 @@ class DatabaseService {
                 )
             `;
         } catch (error) {
-            console.error('Database initialization error:', error);
+            console.error("Database initialization error:", error);
             throw error;
         }
     }
@@ -69,7 +69,7 @@ class DatabaseService {
                 appointment: result[0]
             };
         } catch (error) {
-            console.error('Error creating appointment:', error);
+            console.error("Error creating appointment:", error);
             return {
                 success: false,
                 error: error.message
@@ -88,7 +88,7 @@ class DatabaseService {
                 appointments: result
             };
         } catch (error) {
-            console.error('Error fetching appointments:', error);
+            console.error("Error fetching appointments:", error);
             return {
                 success: false,
                 error: error.message
@@ -102,13 +102,13 @@ class DatabaseService {
                 DELETE FROM appointments 
                 WHERE created_at < NOW() - INTERVAL '7 days'
             `;
-            
+
             return {
                 success: true,
                 deletedCount: result.length
             };
         } catch (error) {
-            console.error('Error deleting old appointments:', error);
+            console.error("Error deleting old appointments:", error);
             return {
                 success: false,
                 error: error.message
@@ -126,11 +126,12 @@ class DatabaseService {
                 appointment: result[0]
             };
         } catch (error) {
-            console.error('Error fetching appointment:', error);
+            console.error("Error fetching appointment:", error);
             return {
                 success: false,
                 error: error.message
             };
         }
     }
-} export default new DatabaseService(); // By John Michael
+}
+export default new DatabaseService(); // By John Michael
