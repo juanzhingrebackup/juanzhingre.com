@@ -63,6 +63,40 @@ export default function RootLayout({
                                     const img = new Image();
                                     img.src = iconPath;
                                 });
+                                
+                                // Enhanced error logging for debugging
+                                const originalError = console.error;
+                                const originalWarn = console.warn;
+                                
+                                console.error = function(...args) {
+                                    originalError.apply(console, ['🔴 ERROR:', ...args]);
+                                    // Also log to a global array for inspection
+                                    if (!window.__errorLog) window.__errorLog = [];
+                                    window.__errorLog.push({
+                                        type: 'error',
+                                        timestamp: new Date().toISOString(),
+                                        args: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))
+                                    });
+                                };
+                                
+                                console.warn = function(...args) {
+                                    originalWarn.apply(console, ['⚠️ WARN:', ...args]);
+                                    if (!window.__errorLog) window.__errorLog = [];
+                                    window.__errorLog.push({
+                                        type: 'warn',
+                                        timestamp: new Date().toISOString(),
+                                        args: args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))
+                                    });
+                                };
+                                
+                                // Make error log accessible
+                                window.getErrorLog = function() {
+                                    return window.__errorLog || [];
+                                };
+                                
+                                window.clearErrorLog = function() {
+                                    window.__errorLog = [];
+                                };
                             })();
                         `
                     }}
