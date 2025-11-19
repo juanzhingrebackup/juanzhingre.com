@@ -1,21 +1,25 @@
 "use client";
 
-import {
-    Icon as IconType,
-    Window as WindowType,
-    DesktopState
-} from "@/src/types/desktop";
-import React, { useState, useCallback, useEffect } from "react";
+import { Icon as IconType, Window as WindowType, DesktopState } from "@/src/types/desktop";
 import AppointmentMaker from "@/src/components/Window/AppointmentMaker";
-import FullImageViewer from "@/src/components/Window/FullImageViewer";
+import React, { useState, useCallback, useEffect } from "react";
+import { flushSync } from "react-dom";
 import MusicWindow from "@/src/components/Window/MusicWindow";
 import CreditsWindow from "@/src/components/Window/Origins";
 import DemoPlayer from "@/src/components/Window/DemoPlayer";
-import { photoData } from "@/src/data/photos";
-import Ishv4ra from "@/src/components/Window/ishv4ra";
+import AlbumViewer from "@/src/components/Window/AlbumViewer";
 import Window from "@/src/components/Window/Window";
 import Icon from "@/src/components/Icon/Icon";
+import { albums, getAlbumCover, getImagePath } from "@/src/data/photos";
 import "./Desktop.css";
+
+// Default desktop positions for icons
+const DEFAULT_DESKTOP_POSITIONS: Record<string, { x: number; y: number }> = {
+    music: { x: 30, y: 120 },
+    demos: { x: 30, y: 240 },
+    playday: { x: 24, y: 360 },
+    ishv4ra: { x: 30, y: 480 }
+};
 
 const Desktop: React.FC = () => {
     const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -26,32 +30,32 @@ const Desktop: React.FC = () => {
                 id: "music",
                 name: "music",
                 type: "folder",
-                position: { x: 30, y: 100 },
-                icon: "/icons/music.png",
+                    position: DEFAULT_DESKTOP_POSITIONS.music,
+                icon: "/images/icons/music.webp",
                 color: "#007AFF"
             },
             {
                 id: "demos",
                 name: "demos",
                 type: "folder",
-                position: { x: 30, y: 200 },
-                icon: "/icons/demos.png",
+                position: DEFAULT_DESKTOP_POSITIONS.demos,
+                icon: "/images/icons/demos.webp",
                 color: "#9C27B0"
             },
             {
                 id: "playday",
                 name: "playday cuts",
                 type: "folder",
-                position: { x: 30, y: 300 },
-                icon: "/icons/playdaycuts.png",
+                position: DEFAULT_DESKTOP_POSITIONS.playday,
+                icon: "/images/icons/playdaycuts.webp",
                 color: "#FF6B6B"
             },
             {
                 id: "ishv4ra",
                 name: "ishv4ra",
                 type: "folder",
-                position: { x: 30, y: 400 },
-                icon: "/icons/ishv4ra.png",
+                position: DEFAULT_DESKTOP_POSITIONS.ishv4ra,
+                icon: "/images/icons/ishv4ra.webp",
                 color: "#8B4513"
             }
         ],
@@ -82,10 +86,10 @@ const Desktop: React.FC = () => {
                 setDesktopState((prev) => ({
                     ...prev,
                     icons: [
-                        { ...prev.icons[0], position: { x: 30, y: 100 } },
-                        { ...prev.icons[1], position: { x: 30, y: 200 } },
-                        { ...prev.icons[2], position: { x: 30, y: 300 } },
-                        { ...prev.icons[3], position: { x: 30, y: 400 } }
+                        { ...prev.icons[0], position: DEFAULT_DESKTOP_POSITIONS.music },
+                        { ...prev.icons[1], position: DEFAULT_DESKTOP_POSITIONS.demos },
+                        { ...prev.icons[2], position: DEFAULT_DESKTOP_POSITIONS.playday },
+                        { ...prev.icons[3], position: DEFAULT_DESKTOP_POSITIONS.ishv4ra }
                     ]
                 }));
             }
@@ -99,6 +103,7 @@ const Desktop: React.FC = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    // Icon movement
     const handleIconMove = useCallback(
         (iconId: string, x: number, y: number) => {
             setDesktopState((prev) => {
@@ -145,43 +150,6 @@ const Desktop: React.FC = () => {
         []
     );
 
-    const handleOpenCollection = useCallback((collection: any) => {
-        // Find the first photo in the collection
-        const firstPhoto = photoData.find(
-            (photo) => photo.collection === collection.id
-        );
-
-        if (firstPhoto) {
-            const newWindow: WindowType = {
-                id: `photo-${firstPhoto.id}`,
-                title: `${firstPhoto.name}`,
-                type: "app",
-                position: { x: 200, y: 200 },
-                size: { width: 900, height: 700 },
-                isMinimized: false,
-                isMaximized: false,
-                isOpen: true,
-                zIndex: Date.now(),
-                content: (
-                    <FullImageViewer
-                        photo={firstPhoto}
-                        onClose={() =>
-                            handleWindowClose(`photo-${firstPhoto.id}`)
-                        }
-                        onNavigate={(direction) =>
-                            handlePhotoNavigate(firstPhoto, direction)
-                        }
-                    />
-                )
-            };
-
-            setDesktopState((prev) => ({
-                ...prev,
-                windows: [...prev.windows, newWindow],
-                activeWindowId: newWindow.id
-            }));
-        }
-    }, []);
 
     const handleOpenCredits = useCallback(() => {
         const isMobile = window.innerWidth <= 768;
@@ -193,9 +161,9 @@ const Desktop: React.FC = () => {
             size: isMobile
                 ? {
                       width: Math.min(400, window.innerWidth - 40),
-                      height: Math.min(350, window.innerHeight - 100)
+                      height: Math.min(750, window.innerHeight - 100)
                   }
-                : { width: 400, height: 300 },
+                : { width: 500, height: 600 },
             isMinimized: false,
             isMaximized: false,
             isOpen: true,
@@ -214,58 +182,6 @@ const Desktop: React.FC = () => {
         }));
     }, []);
 
-    const handlePhotoNavigate = useCallback(
-        (currentPhoto: any, direction: "prev" | "next") => {
-            // Find the next/previous photo in the same collection
-            const photos = photoData.filter(
-                (p) => p.collection === currentPhoto.collection
-            );
-            const currentIndex = photos.findIndex(
-                (p) => p.id === currentPhoto.id
-            );
-            let newIndex =
-                direction === "next" ? currentIndex + 1 : currentIndex - 1;
-
-            // Wrap around
-            if (newIndex < 0) newIndex = photos.length - 1;
-            if (newIndex >= photos.length) newIndex = 0;
-
-            const newPhoto = photos[newIndex];
-
-            // Update the current photo window with the new photo
-            setDesktopState((prev) => {
-                const newWindows = prev.windows.map((w) => {
-                    if (w.id === `photo-${currentPhoto.id}`) {
-                        return {
-                            ...w,
-                            id: `photo-${newPhoto.id}`, // Update the window ID to match the new photo
-                            title: `${newPhoto.name}`,
-                            content: (
-                                <FullImageViewer
-                                    photo={newPhoto}
-                                    onClose={() =>
-                                        handleWindowClose(
-                                            `photo-${newPhoto.id}`
-                                        )
-                                    }
-                                    onNavigate={(dir) =>
-                                        handlePhotoNavigate(newPhoto, dir)
-                                    }
-                                />
-                            )
-                        };
-                    }
-                    return w;
-                });
-
-                return {
-                    ...prev,
-                    windows: newWindows
-                };
-            });
-        },
-        []
-    );
 
     const handleIconClick = useCallback(
         (icon: IconType) => {
@@ -314,7 +230,7 @@ const Desktop: React.FC = () => {
                     size: isMobile
                         ? {
                               width: Math.min(400, window.innerWidth - 40),
-                              height: Math.min(300, window.innerHeight - 100)
+                              height: Math.min(400, window.innerHeight - 100)
                           }
                         : { width: 600, height: 350 },
                     isMinimized: false,
@@ -324,11 +240,14 @@ const Desktop: React.FC = () => {
                     content: <MusicWindow />
                 };
 
-                setDesktopState((prev) => ({
-                    ...prev,
-                    windows: [...prev.windows, newWindow],
-                    activeWindowId: newWindow.id
-                }));
+                // Force immediate rendering to prevent image pop-in delay
+                flushSync(() => {
+                    setDesktopState((prev) => ({
+                        ...prev,
+                        windows: [...prev.windows, newWindow],
+                        activeWindowId: newWindow.id
+                    }));
+                });
             } else if (icon.id === "ishv4ra") {
                 const isMobile = window.innerWidth <= 768;
                 const newWindow: WindowType = {
@@ -346,14 +265,17 @@ const Desktop: React.FC = () => {
                     isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
-                    content: <Ishv4ra onOpenCollection={handleOpenCollection} />
+                    content: <AlbumViewer />
                 };
 
-                setDesktopState((prev) => ({
-                    ...prev,
-                    windows: [...prev.windows, newWindow],
-                    activeWindowId: newWindow.id
-                }));
+                // Force immediate rendering to prevent image pop-in delay
+                flushSync(() => {
+                    setDesktopState((prev) => ({
+                        ...prev,
+                        windows: [...prev.windows, newWindow],
+                        activeWindowId: newWindow.id
+                    }));
+                });
             } else if (icon.id === "demos") {
                 const isMobile = window.innerWidth <= 768;
                 // Calculate height based on number of songs dynamically
@@ -377,11 +299,11 @@ const Desktop: React.FC = () => {
                         ? {
                               width: Math.min(500, window.innerWidth - 40),
                               height: Math.min(
-                                  calculatedHeight + 15,
+                                  calculatedHeight + 30,
                                   window.innerHeight - 100
                               )
                           }
-                        : { width: 800, height: calculatedHeight },
+                        : { width: 450, height: calculatedHeight + 37 },
                     isMinimized: false,
                     isMaximized: false,
                     isOpen: true,
@@ -406,7 +328,7 @@ const Desktop: React.FC = () => {
                               width: window.innerWidth - 20,
                               height: window.innerHeight - 100
                           }
-                        : { width: 500, height: 600 },
+                        : { width: 500, height: 650 },
                     isMinimized: false,
                     isMaximized: false,
                     isOpen: true,
@@ -446,7 +368,7 @@ const Desktop: React.FC = () => {
                 }));
             }
         },
-        [desktopState.windows, handleOpenCollection]
+        [desktopState.windows]
     );
 
     const handleWindowClose = useCallback((windowId: string) => {
@@ -545,20 +467,31 @@ const Desktop: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Preload all images on site load
+    // Preload all album images into cache when Desktop component mounts
+    // This happens before clicking the ishv4ra icon, so images are ready when needed
     useEffect(() => {
-        const preloadAllImages = () => {
-            photoData.forEach((photo, index) => {
-                const img = new Image();
-                img.onerror = () => {
-                    console.warn(`Failed to preload image: ${photo.path}`);
-                };
-                img.src = photo.path;
+        const preloadAllAlbumImages = () => {
+            // Preload all album covers first (priority)
+            albums.forEach((album) => {
+                const coverImg = new Image();
+                coverImg.src = getAlbumCover(album.id);
             });
+
+            // Then preload all other images in background
+            // Use setTimeout to defer so it doesn't block initial render
+            setTimeout(() => {
+                albums.forEach((album) => {
+                    for (let i = 1; i < album.photoCount; i++) {
+                        const img = new Image();
+                        img.src = getImagePath(album.id, i);
+                        img.decode?.().catch(() => {});
+                    }
+                });
+            }, 100); // Small delay to let covers load first
         };
 
         // Start preloading immediately when component mounts
-        preloadAllImages();
+        preloadAllAlbumImages();
     }, []);
 
     return (
@@ -615,7 +548,7 @@ const Desktop: React.FC = () => {
                         }}
                     >
                         <img
-                            src="/icons/startmenu.png"
+                            src="/images/icons/startmenu.webp"
                             alt="Start"
                             className="startButtonIcon"
                         />
@@ -629,13 +562,13 @@ const Desktop: React.FC = () => {
                                 // Get the icon for this window type
                                 let iconSrc = "";
                                 if (window.id.startsWith("music-")) {
-                                    iconSrc = "/icons/music.png";
+                                    iconSrc = "/images/icons/music.webp";
                                 } else if (window.id === "window-ishv4ra") {
-                                    iconSrc = "/icons/ishv4ra.png";
+                                    iconSrc = "/images/icons/ishv4ra.webp";
                                 } else if (window.id === "window-demos") {
-                                    iconSrc = "/icons/demos.png";
+                                    iconSrc = "/images/icons/demos.webp";
                                 } else if (window.id === "window-playday") {
-                                    iconSrc = "/icons/playdaycuts.png";
+                                    iconSrc = "/images/icons/playdaycuts.webp";
                                 }
 
                                 return (
@@ -724,7 +657,7 @@ const Desktop: React.FC = () => {
                             }}
                         >
                             <img
-                                src="/social-icons/instagram.png"
+                                src="/images/icons/instagram.webp"
                                 alt="Instagram"
                                 className="menuItemIcon"
                             />
@@ -741,7 +674,7 @@ const Desktop: React.FC = () => {
                             }}
                         >
                             <img
-                                src="/social-icons/instagram.png"
+                                src="/images/icons/instagram.webp"
                                 alt="Instagram"
                                 className="menuItemIcon"
                             />
@@ -758,7 +691,7 @@ const Desktop: React.FC = () => {
                             }}
                         >
                             <img
-                                src="/social-icons/instagram.png"
+                                src="/images/icons/instagram.webp"
                                 alt="Instagram"
                                 className="menuItemIcon"
                             />
@@ -783,7 +716,7 @@ const Desktop: React.FC = () => {
                             }}
                         >
                             <img
-                                src="/icons/startmenu.png"
+                                src="/images/icons/startmenu.webp"
                                 alt="Shutdown"
                                 className="menuItemIcon"
                             />

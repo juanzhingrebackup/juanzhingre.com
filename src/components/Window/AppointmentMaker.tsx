@@ -4,6 +4,7 @@ import AddressAutocomplete from "@/src/components/AddressAutocomplete/AddressAut
 import { generateConfirmationCode } from "@/src/utils/confirmationCode";
 import DistanceValidator from "@/src/components/DistanceValidator/DistanceValidator";
 import ConfirmationCode from "@/src/components/Window/ConfirmationCode";
+import LookBookViewer from "@/src/components/Window/LookBookViewer";
 import React, { useState } from "react";
 import "./AppointmentMaker.css";
 
@@ -38,6 +39,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     const [isAddressValid, setIsAddressValid] = useState(true);
     const [isAddressSelected, setIsAddressSelected] = useState(false);
     const [isPhoneValid, setIsPhoneValid] = useState(false);
+    const [notes, setNotes] = useState("");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, 1 = next week, etc.
@@ -46,6 +48,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     const [confirmationData, setConfirmationData] = useState<any>(null);
     const [isPreviousWeekFullyBooked, setIsPreviousWeekFullyBooked] =
         useState(false);
+    const [showLookBook, setShowLookBook] = useState(false);
 
     const days = [
         "Monday",
@@ -330,6 +333,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                         ? `House Call (+$5) - ${address}`
                         : "At Location",
                     address: isHouseCall ? address : undefined,
+                    notes: notes || undefined,
                     confirmationCode: confirmationCode
                 };
 
@@ -398,25 +402,6 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     alert(
                         `SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`
                     );
-
-                    // Send error email to dev
-                    try {
-                        await fetch("/api/email/send-sms-failure", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                appointmentDetails,
-                                smsError: smsResult.error
-                            })
-                        });
-                    } catch (emailError) {
-                        console.error(
-                            "Failed to send error email:",
-                            emailError
-                        );
-                    }
                 }
             } catch (error) {
                 console.error("Appointment error:", error);
@@ -465,21 +450,6 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     console.error("Failed to send business SMS:", smsError);
                 }
 
-                // Send email notification to business
-                try {
-                    await fetch("/api/email/send-business-notification", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            appointmentDetails: appointmentData
-                        })
-                    });
-                } catch (emailError) {
-                    console.error("Failed to send business email:", emailError);
-                }
-
                 alert(
                     `Appointment confirmed!\n\nConfirmation Code: ${code}\n\nCut: Volume 1 Cut ($20)\nDay: ${selectedDay}\nTime: ${selectedTime}\nLocation: ${isHouseCall ? `House Call (+$5) - ${address}` : "At Location"}`
                 );
@@ -509,6 +479,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         setIsAddressValid(true);
         setIsAddressSelected(false);
         setIsPhoneValid(false);
+        setNotes("");
         setConfirmationData(null);
     };
 
@@ -546,6 +517,15 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         setIsPhoneValid(validatePhone(newPhone));
     };
 
+    // Show look book viewer if needed
+    if (showLookBook) {
+        return (
+            <LookBookViewer
+                onClose={() => setShowLookBook(false)}
+            />
+        );
+    }
+
     // Show confirmation window if needed
     if (showConfirmation && confirmationData) {
         return (
@@ -578,6 +558,18 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Look Book Button - Only show before cut is selected */}
+                        {!cutSelected && (
+                            <button
+                                onClick={() => setShowLookBook(true)}
+                                disabled={isSubmitting}
+                                className="lookBookButton"
+                                title="View Look Book"
+                            >
+                                Look Book
+                            </button>
+                        )}
 
                         {/* Availability Section - Only show if cut is selected */}
                         {cutSelected && (
@@ -833,6 +825,19 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Notes Section */}
+                        <div className="fieldGroup">
+                            <label className="label">Notes:</label>
+                            <textarea
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                disabled={isSubmitting}
+                                className="notesInput"
+                                placeholder="Add any additional notes or special requests..."
+                                rows={6}
+                            />
                         </div>
 
                         {/* Schedule Button */}

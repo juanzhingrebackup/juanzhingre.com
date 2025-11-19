@@ -1,9 +1,15 @@
 .windowContainer {
     position: absolute;
-    transition: all 0.2s ease;
     will-change: transform;
     transform: translateZ(0);
     backface-visibility: hidden;
+    /* Only transition position/size changes, not opacity or other properties */
+    transition: left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+/* No transition when dragging for immediate response */
+.windowContainer.dragging {
+    transition: none;
 }
 
 .windowContainer.minimized {
@@ -22,10 +28,6 @@
     min-height: 700px;
 }
 
-.windowContainer.dragging {
-    transition: none;
-    will-change: left, top;
-}
 
 @media (max-width: 768px) {
     .windowContainer {

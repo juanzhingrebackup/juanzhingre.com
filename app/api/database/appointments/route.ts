@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
             time,
             location,
             address,
+            notes,
             confirmationCode,
             status = "confirmed"
         } = body;
@@ -118,6 +119,7 @@ export async function POST(req: NextRequest) {
             time,
             location,
             address,
+            notes,
             confirmationCode,
             status
         });

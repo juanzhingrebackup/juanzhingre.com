@@ -45,10 +45,14 @@ class SMSService {
             d.location === "at location"
                 ? process.env.BUSINESS_ADDRESS
                 : d.address;
+        const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `Hey ${d.name}! Your ${d.cut} appointment is booked!\n\n`;
-        msg += `- Date: ${d.day} at ${d.time}\n`;
-        msg += `- Location: ${displayAddress}\n\n`;
-        msg += `🔐 Confirmation Code: ${d.confirmationCode}\n\n`;
+        msg += `- Date: ${fullDate} at ${d.time}\n`;
+        msg += `- Location: ${displayAddress}\n`;
+        if (d.notes) {
+            msg += `- Notes: ${d.notes}\n`;
+        }
+        msg += `\n🔐 Confirmation Code: ${d.confirmationCode}\n\n`;
         msg += `Please enter this code on the website to confirm your booking.\n\n`;
         msg += `Thank you for choosing Playday Cuts! Text ${process.env.BUSINESS_PHONE} for questions.`;
         return msg;
@@ -59,13 +63,17 @@ class SMSService {
             d.location === "at location"
                 ? process.env.BUSINESS_ADDRESS
                 : d.address;
+        const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `NEW APPOINTMENT BOOKING\n\n`;
         msg += `- Customer: ${d.name}\n`;
         msg += `- Phone: ${d.phone}\n`;
         msg += `- Service: ${d.cut}\n`;
-        msg += `- Date: ${d.day}\n`;
+        msg += `- Date: ${fullDate}\n`;
         msg += `- Time: ${d.time}\n`;
         if (displayAddress) msg += `- Location: ${displayAddress}\n`;
+        if (d.notes) {
+            msg += `- Notes: ${d.notes}\n`;
+        }
         msg += `\n- Booked at: ${new Date().toLocaleString()}`;
         return msg;
     }
@@ -75,14 +83,18 @@ class SMSService {
             d.location === "at location"
                 ? process.env.BUSINESS_ADDRESS
                 : d.address;
+        const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `❌ APPOINTMENT CANCELLED\n\n`;
         msg += `- Customer: ${d.name}\n`;
         msg += `- Phone: ${d.phone}\n`;
         msg += `- Service: ${d.cut}\n`;
-        msg += `- Date: ${d.day}\n`;
+        msg += `- Date: ${fullDate}\n`;
         msg += `- Time: ${d.time}\n`;
         msg += `- Location: ${d.location}\n`;
         if (displayAddress) msg += `- Address: ${displayAddress}\n`;
+        if (d.notes) {
+            msg += `- Notes: ${d.notes}\n`;
+        }
         msg += `\n- Cancelled at: ${new Date().toLocaleString()}`;
         return msg;
     }

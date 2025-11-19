@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./DemoPlayer.css";
 
 interface DemoFile {
@@ -15,6 +15,8 @@ const DemoPlayer: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [sortBy, setSortBy] = useState<"name" | "duration">("name");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [progress, setProgress] = useState(0);
+    const [duration, setDuration] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -83,18 +85,62 @@ const DemoPlayer: React.FC = () => {
         }
     };
 
-    const handlePlayTrack = (filename: string) => {
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const updateProgress = () => {
+            if (audio.duration) {
+                setProgress((audio.currentTime / audio.duration) * 100);
+                setDuration(audio.duration);
+            }
+        };
+
+        const handleLoadedMetadata = () => {
+            setDuration(audio.duration);
+        };
+
+        const handleTimeUpdate = () => {
+            updateProgress();
+        };
+
+        const handleEnded = () => {
+            setIsPlaying(false);
+            setProgress(0);
+        };
+
+        audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.addEventListener("timeupdate", handleTimeUpdate);
+        audio.addEventListener("ended", handleEnded);
+
+        return () => {
+            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("ended", handleEnded);
+        };
+    }, [currentTrack]);
+
+    const handlePlayTrack = async (filename: string) => {
         if (currentTrack === filename && isPlaying) {
             // Pause current track
             audioRef.current?.pause();
             setIsPlaying(false);
         } else {
             // Play new track
-            setCurrentTrack(filename);
-            setIsPlaying(true);
             if (audioRef.current) {
-                audioRef.current.src = `/demos/${filename}`;
-                audioRef.current.play();
+                setCurrentTrack(filename);
+                audioRef.current.src = `/audio/demos/${filename}`;
+                
+                try {
+                    // Wait for the audio to be ready before playing
+                    await audioRef.current.load();
+                    await audioRef.current.play();
+                    setIsPlaying(true);
+                } catch (error) {
+                    console.error("Error playing audio:", error);
+                    setIsPlaying(false);
+                    setCurrentTrack(null);
+                }
             }
         }
     };
@@ -108,7 +154,7 @@ const DemoPlayer: React.FC = () => {
                             <th
                                 className={`headerCell sortable`}
                                 onClick={() => handleSort("name")}
-                                style={{ width: "15%" }}
+                                style={{ maxWidth: "300px" }}
                             >
                                 Song Name
                                 {sortBy === "name" && (
@@ -129,12 +175,6 @@ const DemoPlayer: React.FC = () => {
                                     </span>
                                 )}
                             </th>
-                            <th className="headerCell" style={{ width: "20%" }}>
-                                Artist
-                            </th>
-                            <th className="headerCell" style={{ width: "15%" }}>
-                                Album
-                            </th>
                         </tr>
                     </thead>
                     <tbody className="tableBody">
@@ -147,23 +187,53 @@ const DemoPlayer: React.FC = () => {
                                 <td className="tableCell">
                                     <div className="playButtonContainer">
                                         <button
-                                            className={`playButton ${currentTrack === demo.filename && isPlaying ? "playing" : ""}`}
+                                            className={`circularPlayer ${currentTrack === demo.filename && isPlaying ? "playing" : ""}`}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handlePlayTrack(demo.filename);
                                             }}
                                         >
-                                            {currentTrack === demo.filename &&
-                                            isPlaying
-                                                ? "⏸"
-                                                : "▶"}
+                                            <svg className="progressRing" viewBox="0 0 36 36">
+                                                <circle
+                                                    className="progressRingBackground"
+                                                    cx="18"
+                                                    cy="18"
+                                                    r="15.915"
+                                                    fill="none"
+                                                    stroke="#e0e0e0"
+                                                    strokeWidth="3"
+                                                />
+                                                <circle
+                                                    className="progressRingForeground"
+                                                    cx="18"
+                                                    cy="18"
+                                                    r="15.915"
+                                                    fill="none"
+                                                    stroke={currentTrack === demo.filename ? "#1976d2" : "#e0e0e0"}
+                                                    strokeWidth="3"
+                                                    strokeDasharray={`${currentTrack === demo.filename ? progress : 0} ${100 - (currentTrack === demo.filename ? progress : 0)}`}
+                                                    strokeDashoffset="0"
+                                                    transform="rotate(-90 18 18)"
+                                                    style={{ transition: "stroke-dasharray 0.1s linear" }}
+                                                />
+                                            </svg>
+                                            <div className="playPauseIcon">
+                                                {currentTrack === demo.filename && isPlaying ? (
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                                                        <rect x="3" y="2" width="2" height="8" />
+                                                        <rect x="7" y="2" width="2" height="8" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                                                        <path d="M3 2 L10 6 L3 10 Z" />
+                                                    </svg>
+                                                )}
+                                            </div>
                                         </button>
-                                        {demo.name}
+                                        <span className="songName">{demo.name}</span>
                                     </div>
                                 </td>
                                 <td className="tableCell">{demo.duration}</td>
-                                <td className="tableCell">Juan Zhingre</td>
-                                <td className="tableCell">demos</td>
                             </tr>
                         ))}
                     </tbody>
@@ -174,6 +244,7 @@ const DemoPlayer: React.FC = () => {
                 ref={audioRef}
                 onEnded={() => {
                     setIsPlaying(false);
+                    setProgress(0);
                 }}
             />
         </div>

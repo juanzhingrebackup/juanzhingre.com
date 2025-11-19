@@ -29,6 +29,7 @@ class DatabaseService {
                     time VARCHAR(20) NOT NULL,
                     location VARCHAR(200) NOT NULL,
                     address TEXT,
+                    notes TEXT,
                     confirmation_code VARCHAR(4) NOT NULL,
                     status VARCHAR(20) DEFAULT 'confirmed',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -51,15 +52,16 @@ class DatabaseService {
             time,
             location,
             address,
+            notes,
             confirmationCode
         } = appointmentData;
 
         try {
             const result = await this.getSql()`
                 INSERT INTO appointments (
-                    name, phone, cut, day, date, time, location, address, confirmation_code
+                    name, phone, cut, day, date, time, location, address, notes, confirmation_code
                 ) VALUES (
-                    ${name}, ${phone}, ${cut}, ${day}, ${date}, ${time}, ${location}, ${address || null}, ${confirmationCode}
+                    ${name}, ${phone}, ${cut}, ${day}, ${date}, ${time}, ${location}, ${address || null}, ${notes || null}, ${confirmationCode}
                 )
                 RETURNING id, created_at
             `;

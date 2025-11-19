@@ -90,37 +90,97 @@
     border-right: none;
 }
 
-.playButton {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 0;
+.circularPlayer {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
     cursor: pointer;
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-    color: #666;
+    padding: 0;
     margin-right: 8px;
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.playButton.playing {
+.circularPlayer:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.circularPlayer:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.progressRing {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.progressRingBackground {
+    stroke: #e0e0e0;
+}
+
+.progressRingForeground {
+    stroke: #1976d2;
+    transition: stroke-dasharray 0.1s linear;
+}
+
+.playPauseIcon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #333;
+}
+
+.circularPlayer.playing .playPauseIcon {
     color: #1976d2;
 }
 
-.playButton:hover {
-    background: #e0e0e0;
+.circularPlayer:hover .playPauseIcon {
     color: #1976d2;
 }
 
-.playButton:active {
-    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+.circularPlayer:hover .progressRingForeground {
+    stroke: #1565c0;
 }
 
 .playButtonContainer {
     display: flex;
     align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.tableCell:first-child {
+    max-width: 300px;
+    overflow: hidden;
+}
+
+.tableCell:first-child .playButtonContainer {
+    width: 100%;
+}
+
+.songName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
 } /* By John Michael */

@@ -1,10 +1,10 @@
 # juanzhingre.com
 
-Portfolio website for Juan Zhingre
+Portfolio website for [Juan Zhingre](https://juanzhingre.com)
 
 Directed and creative decisions made [By John Michael](https://byjohnmichael.com)
 
-Produced and creative decisions approved by Juan Zhingre
+Produced and creative decisions approved by [Juan Zhingre](https://juanzhingre.com)
 
 ## Getting Started Guide
 

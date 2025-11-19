@@ -32,7 +32,8 @@ const Icon: React.FC<IconProps> = ({
         icon.icon.includes(".png") ||
         icon.icon.includes(".jpg") ||
         icon.icon.includes(".jpeg") ||
-        icon.icon.includes(".gif");
+        icon.icon.includes(".gif") ||
+        icon.icon.includes(".webp");
 
     // Optimized mouse move handler using refs
     const handleMouseMove = useCallback(

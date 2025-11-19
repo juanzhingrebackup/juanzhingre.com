@@ -11,14 +11,6 @@
         "app/api/sms/send-business-notification/route.ts": {
             "memory": 256,
             "maxDuration": 10
-        },
-        "app/api/email/send-sms-failure/route.ts": {
-            "memory": 256,
-            "maxDuration": 10
-        },
-        "app/api/email/send-business-notification/route.ts": {
-            "memory": 256,
-            "maxDuration": 10
         }
     },
     "regions": ["iad1"]

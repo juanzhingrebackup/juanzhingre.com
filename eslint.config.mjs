@@ -4,12 +4,12 @@ import tsparser from "@typescript-eslint/parser";
 export default [
     {
         ignores: [
-            ".next/**",
-            "out/**",
-            "build/**",
-            "next-env.d.ts",
             "node_modules/**",
-            "public/**"
+            "next-env.d.ts",
+            "public/**",
+            ".next/**",
+            "build/**",
+            "out/**"
         ]
     },
     {
@@ -28,8 +28,8 @@ export default [
             "@typescript-eslint": tseslint
         },
         rules: {
-            "no-unused-vars": "off",
             "@typescript-eslint/no-unused-vars": "warn",
+            "no-unused-vars": "off",
             "no-console": "off"
         }
     },
@@ -49,4 +49,4 @@ export default [
             "no-console": "off"
         }
     }
-];
+]; // By John Michael

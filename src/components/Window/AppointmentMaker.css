@@ -74,10 +74,39 @@
     background: #f0f0f0;
 }
 
+.notesInput {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #808080;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    background: #ffffff;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.notesInput:disabled {
+    background: #f0f0f0;
+}
+
+.notesInput:focus {
+    outline: none;
+    border: 2px solid #4caf50;
+}
+
 @media (max-width: 768px) {
     .input {
         padding: 12px;
         font-size: 16px;
+    }
+
+    .notesInput {
+        padding: 12px;
+        font-size: 16px;
+        min-height: 150px;
     }
 }
 
@@ -361,6 +390,43 @@
 
 .nextButton:hover:not(:disabled) {
     background: #45a049;
+}
+
+/* Look Book Button Styles */
+.lookBookButton {
+    padding: 12px 24px;
+    background: #2196f3;
+    color: white;
+    border: 2px solid #ffffff;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+    border-left: 2px solid #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    align-self: center;
+    box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.3);
+    min-height: auto;
+    min-width: auto;
+    margin-top: 10px;
+}
+
+.lookBookButton:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.lookBookButton:hover:not(:disabled) {
+    background: #1976d2;
+}
+
+@media (max-width: 768px) {
+    .lookBookButton {
+        padding: 16px 32px;
+        font-size: 18px;
+        min-height: 56px;
+        min-width: 200px;
+    }
 }
 
 /* Back Button Styles */
