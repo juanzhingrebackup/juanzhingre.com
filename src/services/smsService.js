@@ -43,26 +43,28 @@ class SMSService {
     appointmentConfirmation(d) {
         const displayAddress =
             d.location === "at location"
-                ? process.env.BUSINESS_ADDRESS
+                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
                 : d.address;
+        const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `Hey ${d.name}! Your ${d.cut} appointment is booked!\n\n`;
         msg += `- Date: ${fullDate} at ${d.time}\n`;
-        msg += `- Location: ${displayAddress}\n`;
+        msg += `- Location: ${address}\n`;
         if (d.notes) {
             msg += `- Notes: ${d.notes}\n`;
         }
         msg += `\n🔐 Confirmation Code: ${d.confirmationCode}\n\n`;
         msg += `Please enter this code on the website to confirm your booking.\n\n`;
-        msg += `Thank you for choosing Playday Cuts! Text ${process.env.BUSINESS_PHONE} for questions.`;
+        msg += `Thank you for choosing Playday Cuts! Text ${process.env.NEXT_PUBLIC_BUSINESS_PHONE} for questions.`;
         return msg;
     }
 
     businessNotification(d) {
         const displayAddress =
             d.location === "at location"
-                ? process.env.BUSINESS_ADDRESS
+                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
                 : d.address;
+        const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `NEW APPOINTMENT BOOKING\n\n`;
         msg += `- Customer: ${d.name}\n`;
@@ -70,7 +72,7 @@ class SMSService {
         msg += `- Service: ${d.cut}\n`;
         msg += `- Date: ${fullDate}\n`;
         msg += `- Time: ${d.time}\n`;
-        if (displayAddress) msg += `- Location: ${displayAddress}\n`;
+        msg += `- Location: ${address}\n`;
         if (d.notes) {
             msg += `- Notes: ${d.notes}\n`;
         }
@@ -81,8 +83,9 @@ class SMSService {
     appointmentCancellation(d) {
         const displayAddress =
             d.location === "at location"
-                ? process.env.BUSINESS_ADDRESS
+                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
                 : d.address;
+        const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `❌ APPOINTMENT CANCELLED\n\n`;
         msg += `- Customer: ${d.name}\n`;
@@ -91,7 +94,7 @@ class SMSService {
         msg += `- Date: ${fullDate}\n`;
         msg += `- Time: ${d.time}\n`;
         msg += `- Location: ${d.location}\n`;
-        if (displayAddress) msg += `- Address: ${displayAddress}\n`;
+        msg += `- Address: ${address}\n`;
         if (d.notes) {
             msg += `- Notes: ${d.notes}\n`;
         }
@@ -107,7 +110,7 @@ class SMSService {
     }
 
     async sendBusinessNotification(d) {
-        const businessPhone = process.env.BUSINESS_PHONE;
+        const businessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE;
         if (!businessPhone)
             return { success: false, error: "Business phone not configured" };
         const formatted = this.formatPhoneNumber(businessPhone);

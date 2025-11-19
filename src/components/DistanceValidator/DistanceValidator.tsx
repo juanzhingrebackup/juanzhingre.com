@@ -1,7 +1,7 @@
 "use client";
 
 import googleMapsService from "@/src/services/googleMapsService";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./DistanceValidator.css";
 
 interface DistanceValidatorProps {
@@ -23,6 +23,8 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
         distance?: number;
         error?: string;
     } | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const previousValidState = useRef<boolean | null>(null);
 
     useEffect(() => {
         if (!address || address.length < 5) {
@@ -72,32 +74,47 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
         validateDistance();
     }, [address, businessLocation, onValidationResult, isAddressSelected]);
 
+    // Play audio when address is determined to be too far
+    useEffect(() => {
+        if (validationResult && !validationResult.isValid) {
+            // Only play if we're transitioning from valid/unknown to invalid
+            if (previousValidState.current !== false) {
+                const audio = audioRef.current;
+                if (audio) {
+                    audio.play().catch((error) => {
+                        console.error("Error playing audio:", error);
+                    });
+                }
+            }
+            previousValidState.current = false;
+        } else if (validationResult && validationResult.isValid) {
+            previousValidState.current = true;
+        }
+    }, [validationResult]);
+
     if (!address || address.length < 5) {
         return null;
     }
 
-    // Don't show anything if we're still validating or if there's no result yet
-    if (isValidating || !validationResult) {
-        return null;
-    }
-
-    // Only show error message if address is outside service area
-    if (validationResult && !validationResult.isValid) {
-        return (
-            <div className="distance-validator">
-                <div className="validation-status invalid">
-                    <span className="status-icon">✗</span>
-                    <span className="status-text">
-                        {validationResult.error
-                            ? validationResult.error
-                            : `Outside service area (${validationResult.distance?.toFixed(1)} miles) - Must be 10 miles within Provo, UT`}
-                    </span>
+    return (
+        <>
+            <audio ref={audioRef} src="/audio/too-far-error.mp3" preload="auto" />
+            {/* Don't show anything if we're still validating or if there's no result yet */}
+            {!isValidating && validationResult && !validationResult.isValid && (
+                <div className="distance-validator">
+                    <div className="validation-status invalid">
+                        <span className="status-icon">✗</span>
+                        <span className="status-text">
+                            {validationResult.error
+                                ? validationResult.error
+                                : `Outside service area (${validationResult.distance?.toFixed(1)} miles) - Must be 10 miles within Provo, UT`}
+                        </span>
+                    </div>
                 </div>
-            </div>
-        );
-    }
-    // Don't show anything if address is valid (within service area)
-    // The green checkmark will be shown by the AddressAutocomplete component
-    return null;
+            )}
+            {/* Don't show anything if address is valid (within service area) */}
+            {/* The green checkmark will be shown by the AddressAutocomplete component */}
+        </>
+    );
 };
 export default DistanceValidator; // By John Michael

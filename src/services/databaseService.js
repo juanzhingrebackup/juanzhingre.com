@@ -98,26 +98,6 @@ class DatabaseService {
         }
     }
 
-    async deleteOldAppointments() {
-        try {
-            const result = await this.getSql()`
-                DELETE FROM appointments 
-                WHERE created_at < NOW() - INTERVAL '7 days'
-            `;
-
-            return {
-                success: true,
-                deletedCount: result.length
-            };
-        } catch (error) {
-            console.error("Error deleting old appointments:", error);
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
     async getAppointmentById(id) {
         try {
             const result = await this.getSql()`

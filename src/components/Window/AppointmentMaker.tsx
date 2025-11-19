@@ -117,18 +117,6 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                 });
 
                 setBookedSlots(bookedSlotsSet);
-
-                // Clean up old appointments (older than 7 days)
-                try {
-                    await fetch("/api/database/appointments", {
-                        method: "DELETE"
-                    });
-                } catch (cleanupError) {
-                    console.warn(
-                        "Failed to clean up old appointments:",
-                        cleanupError
-                    );
-                }
             } else {
                 console.error("Failed to load appointments:", result.error);
                 setBookedSlots(new Set<string>());
@@ -372,7 +360,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     const responseText = await smsResponse.text();
                     console.error("Response body:", responseText);
                     const businessPhone =
-                        process.env.BUSINESS_PHONE || "the barber";
+                        process.env.NEXT_PUBLIC_BUSINESS_PHONE || "the barber";
                     alert(
                         `SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`
                     );
@@ -398,7 +386,7 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                 } else {
                     // SMS failed, show error and suggest contacting barber
                     const businessPhone =
-                        process.env.BUSINESS_PHONE || "the barber";
+                        process.env.NEXT_PUBLIC_BUSINESS_PHONE || "the barber";
                     alert(
                         `SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`
                     );
