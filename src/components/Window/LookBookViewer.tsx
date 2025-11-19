@@ -10,8 +10,16 @@ interface LookBookViewerProps {
 
 const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
     const [currentViewIndex, setCurrentViewIndex] = useState(0);
+    const [loadingStates, setLoadingStates] = useState({
+        video0: true,
+        image0: true,
+        video1: true,
+        image2: true,
+    });
     const video0Ref = useRef<HTMLVideoElement>(null);
     const video1Ref = useRef<HTMLVideoElement>(null);
+    const image0Ref = useRef<HTMLImageElement>(null);
+    const image2Ref = useRef<HTMLImageElement>(null);
 
     // Total views: 0 = (0.mp4 + 0.webp), 1 = (1.mp4), 2 = (2.webp)
     const totalViews = 3;
@@ -81,48 +89,159 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
     const hasPrev = currentViewIndex > 0;
     const hasNext = currentViewIndex < totalViews - 1;
 
+    const handleVideo0LoadStart = () => {
+        setLoadingStates(prev => ({ ...prev, video0: true }));
+    };
+
+    const handleVideo0CanPlay = () => {
+        setLoadingStates(prev => ({ ...prev, video0: false }));
+    };
+
+    const handleVideo0Waiting = () => {
+        setLoadingStates(prev => ({ ...prev, video0: true }));
+    };
+
+    const handleVideo0Playing = () => {
+        setLoadingStates(prev => ({ ...prev, video0: false }));
+    };
+
+    const handleImage0Load = () => {
+        setLoadingStates(prev => ({ ...prev, image0: false }));
+    };
+
+    const handleImage0Error = () => {
+        setLoadingStates(prev => ({ ...prev, image0: false }));
+    };
+
+    const handleVideo1LoadStart = () => {
+        setLoadingStates(prev => ({ ...prev, video1: true }));
+    };
+
+    const handleVideo1CanPlay = () => {
+        setLoadingStates(prev => ({ ...prev, video1: false }));
+    };
+
+    const handleVideo1Waiting = () => {
+        setLoadingStates(prev => ({ ...prev, video1: true }));
+    };
+
+    const handleVideo1Playing = () => {
+        setLoadingStates(prev => ({ ...prev, video1: false }));
+    };
+
+    const handleImage2Load = () => {
+        setLoadingStates(prev => ({ ...prev, image2: false }));
+    };
+
+    const handleImage2Error = () => {
+        setLoadingStates(prev => ({ ...prev, image2: false }));
+    };
+
+    // Reset loading states when view changes and check if images are already loaded
+    useLayoutEffect(() => {
+        if (currentViewIndex === 0) {
+            setLoadingStates(prev => ({ ...prev, video0: true, image0: true }));
+            // Check if image is already loaded (cached)
+            if (image0Ref.current?.complete) {
+                setLoadingStates(prev => ({ ...prev, image0: false }));
+            }
+        } else if (currentViewIndex === 1) {
+            setLoadingStates(prev => ({ ...prev, video1: true }));
+        } else if (currentViewIndex === 2) {
+            setLoadingStates(prev => ({ ...prev, image2: true }));
+            // Check if image is already loaded (cached)
+            if (image2Ref.current?.complete) {
+                setLoadingStates(prev => ({ ...prev, image2: false }));
+            }
+        }
+    }, [currentViewIndex]);
+
     return (
         <div className="lookbook-viewer-container">
             <div className="lookbook-viewer-content">
                 <div className="lookbook-container">
                     {currentViewIndex === 0 && (
                         <div className="lookbook-view-0">
-                            <video
-                                ref={video0Ref}
-                                src="/images/cuts/0.mp4"
-                                className="lookbook-video"
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                            />
-                            <img
-                                src="/images/cuts/0.webp"
-                                alt="Look Book 0"
-                                className="lookbook-image"
-                            />
+                            <div className="lookbook-media-wrapper">
+                                <video
+                                    ref={video0Ref}
+                                    src="/images/cuts/0.mp4"
+                                    className="lookbook-video"
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    onLoadStart={handleVideo0LoadStart}
+                                    onCanPlay={handleVideo0CanPlay}
+                                    onLoadedData={handleVideo0CanPlay}
+                                    onWaiting={handleVideo0Waiting}
+                                    onPlaying={handleVideo0Playing}
+                                />
+                                {loadingStates.video0 && (
+                                    <div className="lookbook-loading-overlay">
+                                        <div className="lookbook-spinner"></div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="lookbook-media-wrapper">
+                                <img
+                                    ref={image0Ref}
+                                    src="/images/cuts/0.webp"
+                                    alt="Look Book 0"
+                                    className="lookbook-image"
+                                    onLoad={handleImage0Load}
+                                    onError={handleImage0Error}
+                                />
+                                {loadingStates.image0 && (
+                                    <div className="lookbook-loading-overlay">
+                                        <div className="lookbook-spinner"></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                     {currentViewIndex === 1 && (
                         <div className="lookbook-view-single">
-                            <video
-                                ref={video1Ref}
-                                src="/images/cuts/1.mp4"
-                                className="lookbook-video-single"
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                            />
+                            <div className="lookbook-media-wrapper">
+                                <video
+                                    ref={video1Ref}
+                                    src="/images/cuts/1.mp4"
+                                    className="lookbook-video-single"
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    onLoadStart={handleVideo1LoadStart}
+                                    onCanPlay={handleVideo1CanPlay}
+                                    onLoadedData={handleVideo1CanPlay}
+                                    onWaiting={handleVideo1Waiting}
+                                    onPlaying={handleVideo1Playing}
+                                />
+                                {loadingStates.video1 && (
+                                    <div className="lookbook-loading-overlay">
+                                        <div className="lookbook-spinner"></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                     {currentViewIndex === 2 && (
                         <div className="lookbook-view-single">
-                            <img
-                                src="/images/cuts/2.webp"
-                                alt="Look Book 2"
-                                className="lookbook-image-single"
-                            />
+                            <div className="lookbook-media-wrapper">
+                                <img
+                                    ref={image2Ref}
+                                    src="/images/cuts/2.webp"
+                                    alt="Look Book 2"
+                                    className="lookbook-image-single"
+                                    onLoad={handleImage2Load}
+                                    onError={handleImage2Error}
+                                />
+                                {loadingStates.image2 && (
+                                    <div className="lookbook-loading-overlay">
+                                        <div className="lookbook-spinner"></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
