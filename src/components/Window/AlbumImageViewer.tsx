@@ -112,7 +112,6 @@ const AlbumImageViewer: React.FC<AlbumImageViewerProps> = ({ album, onClose }) =
                         src={currentImagePath}
                         alt={`${album.name} - Image ${currentImageIndex + 1}`}
                         className="main-image"
-                        style={currentImagePath === "/images/albums/oceanside/0.webp" ? { transform: "rotate(180deg)" } : undefined}
                         loading="eager"
                         decoding="sync"
                         onError={(e) => {
