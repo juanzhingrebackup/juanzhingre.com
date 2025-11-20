@@ -5,6 +5,7 @@
     "scripts": {
         "generate:albums": "tsx scripts/generate-albums.ts",
         "dev": "npm run generate:albums && next dev -p 2509",
+        "dev:mobile": "npm run generate:albums && next dev -p 2509 -H 0.0.0.0",
         "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
         "format:check": "prettier --check .",
         "format": "prettier --write .",
