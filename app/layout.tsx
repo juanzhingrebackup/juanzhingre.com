@@ -3,6 +3,7 @@ import "./globals.css";
 import "98.css";
 import { albums } from "@/src/data/photos";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
     title: "juanzhingre.com",
@@ -75,6 +76,7 @@ export default function RootLayout({
             <body>
                 {children}
                 <Analytics />
+                <SpeedInsights />
             </body>
         </html>
     );
