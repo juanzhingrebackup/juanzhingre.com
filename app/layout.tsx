@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "98.css";
 import { albums } from "@/src/data/photos";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
     title: "juanzhingre.com",
@@ -71,7 +72,10 @@ export default function RootLayout({
                 {/* <script src="https://cdn.jsdelivr.net/npm/eruda"></script> */}
                 {/* <script dangerouslySetInnerHTML={{ __html: 'eruda.init();' }} /> */}
             </head>
-            <body>{children}</body>
+            <body>
+                {children}
+                <Analytics />
+            </body>
         </html>
     );
 } // By John Michael
