@@ -25,25 +25,18 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
     } | null>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
     const previousValidState = useRef<boolean | null>(null);
-    // Use ref to store callback to avoid infinite loops
-    const onValidationResultRef = useRef(onValidationResult);
-    
-    // Update ref when callback changes
-    useEffect(() => {
-        onValidationResultRef.current = onValidationResult;
-    }, [onValidationResult]);
 
     useEffect(() => {
         if (!address || address.length < 5) {
             setValidationResult(null);
-            onValidationResultRef.current(true); // Don't block if no address yet
+            onValidationResult(true); // Don't block if no address yet
             return;
         }
 
         // Only validate if user has selected an address from autocomplete
         if (!isAddressSelected) {
             setValidationResult(null);
-            onValidationResultRef.current(true); // Don't block if user is still typing
+            onValidationResult(true); // Don't block if user is still typing
             return;
         }
 
@@ -63,7 +56,7 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
                 };
 
                 setValidationResult(validation);
-                onValidationResultRef.current(isValid, result.distance);
+                onValidationResult(isValid, result.distance);
             } catch (error) {
                 console.error("Distance validation error:", error);
                 const validation = {
@@ -71,7 +64,7 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
                     error: "Unable to validate distance"
                 };
                 setValidationResult(validation);
-                onValidationResultRef.current(false);
+                onValidationResult(false);
             } finally {
                 setIsValidating(false);
             }
@@ -79,7 +72,7 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
 
         // Validate immediately when address is selected
         validateDistance();
-    }, [address, businessLocation, isAddressSelected]);
+    }, [address, businessLocation, onValidationResult, isAddressSelected]);
 
     // Play audio when address is determined to be too far
     useEffect(() => {

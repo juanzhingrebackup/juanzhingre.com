@@ -41,10 +41,11 @@ class SMSService {
 
     // Templates
     appointmentConfirmation(d) {
-        const displayAddress =
-            d.location === "at location"
-                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
-                : d.address;
+        // Check if location is "At Location" (case-insensitive)
+        const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
+        const displayAddress = isAtLocation
+            ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
+            : d.address;
         const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `Hey ${d.name}! Your ${d.cut} appointment is booked!\n\n`;
@@ -54,16 +55,16 @@ class SMSService {
             msg += `- Notes: ${d.notes}\n`;
         }
         msg += `\n🔐 Confirmation Code: ${d.confirmationCode}\n\n`;
-        msg += `Please enter this code on the website to confirm your booking.\n\n`;
+        msg += `Please enter this 5-letter code on the website to confirm your booking.\n\n`;
         msg += `Thank you for choosing Playday Cuts! Text ${process.env.NEXT_PUBLIC_BUSINESS_PHONE} for questions.`;
         return msg;
     }
 
     businessNotification(d) {
-        const displayAddress =
-            d.location === "at location"
-                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
-                : d.address;
+        const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
+        const displayAddress = isAtLocation
+            ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
+            : d.address;
         const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `NEW APPOINTMENT BOOKING\n\n`;
@@ -81,10 +82,10 @@ class SMSService {
     }
 
     appointmentCancellation(d) {
-        const displayAddress =
-            d.location === "at location"
-                ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
-                : d.address;
+        const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
+        const displayAddress = isAtLocation
+            ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
+            : d.address;
         const address = displayAddress || "1776 Sego Ln, Provo, UT";
         const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
         let msg = `❌ APPOINTMENT CANCELLED\n\n`;

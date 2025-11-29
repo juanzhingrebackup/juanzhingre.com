@@ -5,7 +5,7 @@ import { generateConfirmationCode } from "@/src/utils/confirmationCode";
 import DistanceValidator from "@/src/components/DistanceValidator/DistanceValidator";
 import ConfirmationCode from "@/src/components/Window/ConfirmationCode";
 import LookBookViewer from "@/src/components/Window/LookBookViewer";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import "./AppointmentMaker.css";
 
 interface AppointmentMakerProps {
@@ -14,7 +14,7 @@ interface AppointmentMakerProps {
 
 const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
     // Business location - get from environment variable or use default
-    const BUSINESS_LOCATION = process.env.SERVICE_AREA || "Provo, UT";
+    const BUSINESS_LOCATION = process.env.NEXT_PUBLIC_SERVICE_AREA || "Provo, UT";
 
     // Step management
     const [currentStep, setCurrentStep] = useState<
@@ -227,7 +227,14 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         // Check if all days in previous week would be fully booked
         const isFullyBooked = days.every((day, dayIndex) => {
             const dayDate = previousWeekDates[dayIndex];
-            const isPast = dayDate < new Date();
+            
+            // Compare dates properly (without time component)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dayDateOnly = new Date(dayDate);
+            dayDateOnly.setHours(0, 0, 0, 0);
+            const isPast = dayDateOnly < today;
+            
             const timeSlots = getTimeSlots(day);
 
             // If it's in the past, consider it "fully booked"
@@ -256,16 +263,18 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         // Remove all non-digit characters except +
         const cleanPhone = phone.replace(/[\s\-().]/g, "");
 
+        // Extract only digits
+        const digitsOnly = cleanPhone.replace(/\D/g, "");
+
         // Check if it's a valid US phone number (10 digits or 11 digits starting with 1)
-        const phoneRegex =
-            /^(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})$/;
-        const isValid = phoneRegex.test(phone);
+        if (digitsOnly.length === 10) {
+            return true; // Valid 10-digit US number
+        }
+        if (digitsOnly.length === 11 && digitsOnly.startsWith("1")) {
+            return true; // Valid 11-digit US number starting with 1
+        }
 
-        // Also check length (10-11 digits after cleaning)
-        const digitCount = cleanPhone.replace(/^\+?1/, "").length;
-        const hasCorrectLength = digitCount === 10;
-
-        return isValid && hasCorrectLength;
+        return false;
     };
 
     const isFirstStepComplete = () => {
@@ -326,14 +335,6 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                 };
 
                 // Send SMS confirmation to customer
-                console.log("=== CLIENT: SENDING SMS REQUEST ===");
-                console.log(
-                    "Appointment details being sent:",
-                    JSON.stringify(appointmentDetails, null, 2)
-                );
-                console.log("Request URL:", "/api/sms/send-confirmation");
-                console.log("Request method:", "POST");
-
                 const smsResponse = await fetch("/api/sms/send-confirmation", {
                     method: "POST",
                     headers: {
@@ -342,29 +343,28 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
                     body: JSON.stringify({ appointmentDetails })
                 });
 
-                console.log("=== CLIENT: SMS RESPONSE RECEIVED ===");
-                console.log("Response status:", smsResponse.status);
-                console.log("Response statusText:", smsResponse.statusText);
-                console.log("Response ok:", smsResponse.ok);
-                console.log(
-                    "Response headers:",
-                    Object.fromEntries(smsResponse.headers.entries())
-                );
-
                 if (!smsResponse.ok) {
-                    console.error(
-                        "SMS API error:",
-                        smsResponse.status,
-                        smsResponse.statusText
-                    );
-                    const responseText = await smsResponse.text();
-                    console.error("Response body:", responseText);
                     const businessPhone =
                         process.env.NEXT_PUBLIC_BUSINESS_PHONE || "the barber";
-                    alert(
-                        `SMS confirmation failed to send. Please contact ${businessPhone} directly to confirm your appointment.`
+                    
+                    // Store appointment data in localStorage for recovery
+                    localStorage.setItem("pendingAppointment", JSON.stringify(appointmentDetails));
+                    
+                    const shouldRetry = confirm(
+                        `SMS confirmation failed to send. Would you like to retry?\n\nClick OK to retry, or Cancel to contact ${businessPhone} directly.`
                     );
-                    return;
+                    
+                    if (shouldRetry) {
+                        // Recursive retry - call handleSchedule again
+                        setIsSubmitting(false);
+                        handleSchedule();
+                        return;
+                    } else {
+                        alert(
+                            `Please contact ${businessPhone} directly to confirm your appointment.\n\nYour appointment details have been saved locally.`
+                        );
+                        return;
+                    }
                 }
 
                 const smsResult = await smsResponse.json();
@@ -495,9 +495,9 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         setIsAddressSelected(isSelected);
     };
 
-    const handleAddressValidation = useCallback((isValid: boolean, distance?: number) => {
+    const handleAddressValidation = (isValid: boolean, distance?: number) => {
         setIsAddressValid(isValid);
-    }, []);
+    };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newPhone = e.target.value;

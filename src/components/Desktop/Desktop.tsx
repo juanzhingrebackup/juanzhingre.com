@@ -471,44 +471,23 @@ const Desktop: React.FC = () => {
     // This happens before clicking the ishv4ra icon, so images are ready when needed
     useEffect(() => {
         const preloadAllAlbumImages = () => {
-            try {
-                // Preload all album covers first (priority)
+            // Preload all album covers first (priority)
+            albums.forEach((album) => {
+                const coverImg = new Image();
+                coverImg.src = getAlbumCover(album.id);
+            });
+
+            // Then preload all other images in background
+            // Use setTimeout to defer so it doesn't block initial render
+            setTimeout(() => {
                 albums.forEach((album) => {
-                    try {
-                        const coverImg = new Image();
-                        coverImg.onerror = () => {
-                            console.warn(`Failed to preload cover for album: ${album.id}`);
-                        };
-                        coverImg.src = getAlbumCover(album.id);
-                    } catch (error) {
-                        console.error(`Error preloading cover for album ${album.id}:`, error);
+                    for (let i = 1; i < album.photoCount; i++) {
+                        const img = new Image();
+                        img.src = getImagePath(album.id, i);
+                        img.decode?.().catch(() => {});
                     }
                 });
-
-                // Then preload all other images in background
-                // Use setTimeout to defer so it doesn't block initial render
-                setTimeout(() => {
-                    albums.forEach((album) => {
-                        for (let i = 1; i < album.photoCount; i++) {
-                            try {
-                                const img = new Image();
-                                img.onerror = () => {
-                                    // Silently handle individual image load failures
-                                };
-                                img.src = getImagePath(album.id, i);
-                                img.decode?.().catch(() => {
-                                    // Silently handle decode failures
-                                });
-                            } catch (error) {
-                                // Silently handle individual image errors to prevent crashes
-                            }
-                        }
-                    });
-                }, 100); // Small delay to let covers load first
-            } catch (error) {
-                console.error("Error in image preloading:", error);
-                // Don't crash the app if preloading fails
-            }
+            }, 100); // Small delay to let covers load first
         };
 
         // Start preloading immediately when component mounts

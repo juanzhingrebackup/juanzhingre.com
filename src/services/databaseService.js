@@ -36,6 +36,22 @@ class DatabaseService {
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             `;
+
+            // Create indexes for better query performance
+            await this.getSql()`
+                CREATE INDEX IF NOT EXISTS idx_appointments_date_time 
+                ON appointments(date, time)
+            `;
+
+            await this.getSql()`
+                CREATE INDEX IF NOT EXISTS idx_appointments_status 
+                ON appointments(status)
+            `;
+
+            await this.getSql()`
+                CREATE INDEX IF NOT EXISTS idx_appointments_confirmation_code 
+                ON appointments(confirmation_code)
+            `;
         } catch (error) {
             console.error("Database initialization error:", error);
             throw error;
@@ -109,6 +125,47 @@ class DatabaseService {
             };
         } catch (error) {
             console.error("Error fetching appointment:", error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    async getAppointmentsByDateTime(date, time) {
+        try {
+            const result = await this.getSql()`
+                SELECT * FROM appointments 
+                WHERE date = ${date} 
+                AND time = ${time} 
+                AND status != 'cancelled'
+            `;
+            return {
+                success: true,
+                appointments: result
+            };
+        } catch (error) {
+            console.error("Error fetching appointments by date/time:", error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    async getAppointmentByConfirmationCode(code) {
+        try {
+            const result = await this.getSql()`
+                SELECT * FROM appointments 
+                WHERE confirmation_code = ${code}
+                AND created_at > NOW() - INTERVAL '24 hours'
+            `;
+            return {
+                success: true,
+                appointment: result[0] || null
+            };
+        } catch (error) {
+            console.error("Error fetching appointment by code:", error);
             return {
                 success: false,
                 error: error.message

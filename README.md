@@ -6,6 +6,32 @@ Directed and creative decisions made [By John Michael](https://byjohnmichael.com
 
 Produced and creative decisions approved by [Juan Zhingre](https://juanzhingre.com)
 
+## Environment Setup
+
+1. Copy `env.example` to `.env.local`:
+   ```bash
+   cp env.example .env.local
+   ```
+
+2. Fill in the required environment variables in `.env.local`:
+   - `DATABASE_URL` - Neon/PostgreSQL database connection string
+   - `TEXTBELT_KEY` - SMS API key from textbelt.com
+   - `GOOGLE_MAPS_KEY` - Google Maps API key (with restrictions enabled)
+   - `NEXT_PUBLIC_BUSINESS_PHONE` - Your business phone number
+   - `NEXT_PUBLIC_BUSINESS_ADDRESS` - Your business address
+   - `NEXT_PUBLIC_SERVICE_AREA` - Your service area (e.g., "Provo, UT")
+
+3. **IMPORTANT**: Secure your Google Maps API key:
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Navigate to APIs & Services > Credentials
+   - Edit your API key and add restrictions:
+     - Application restrictions: HTTP referrers (websites)
+     - Add your domain(s) (e.g., `https://yourdomain.com/*`)
+     - API restrictions: Select only these APIs:
+       - Places API
+       - Distance Matrix API
+       - Maps JavaScript API
+
 ## Getting Started Guide
 
 1. Clone

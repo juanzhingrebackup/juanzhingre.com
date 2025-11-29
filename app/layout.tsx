@@ -51,39 +51,20 @@ export default function RootLayout({
                     dangerouslySetInnerHTML={{
                         __html: `
                             (function() {
-                                try {
-                                    const albums = ${JSON.stringify(ALBUM_IDS)};
-                                    const musicIcons = ['/images/icons/profile.webp', '/images/icons/spotify.webp', '/images/icons/apple.webp', '/images/icons/youtube.webp', '/images/icons/amazon.webp'];
-                                    
-                                    // Preload album covers
-                                    albums.forEach(function(albumId) {
-                                        try {
-                                            const img = new Image();
-                                            img.onerror = function() {
-                                                // Silently handle image load failures
-                                            };
-                                            img.src = '/images/albums/' + albumId + '/0.webp';
-                                        } catch (e) {
-                                            // Silently handle individual image errors
-                                        }
-                                    });
-                                    
-                                    // Preload music icons
-                                    musicIcons.forEach(function(iconPath) {
-                                        try {
-                                            const img = new Image();
-                                            img.onerror = function() {
-                                                // Silently handle image load failures
-                                            };
-                                            img.src = iconPath;
-                                        } catch (e) {
-                                            // Silently handle individual image errors
-                                        }
-                                    });
-                                } catch (e) {
-                                    // Don't crash if preloading fails
-                                    console.error('Image preloading error:', e);
-                                }
+                                const albums = ${JSON.stringify(ALBUM_IDS)};
+                                const musicIcons = ['/images/icons/profile.webp', '/images/icons/spotify.webp', '/images/icons/apple.webp', '/images/icons/youtube.webp', '/images/icons/amazon.webp'];
+                                
+                                // Preload album covers
+                                albums.forEach(function(albumId) {
+                                    const img = new Image();
+                                    img.src = '/images/albums/' + albumId + '/0.webp';
+                                });
+                                
+                                // Preload music icons
+                                musicIcons.forEach(function(iconPath) {
+                                    const img = new Image();
+                                    img.src = iconPath;
+                                });
                             })();
                         `
                     }}

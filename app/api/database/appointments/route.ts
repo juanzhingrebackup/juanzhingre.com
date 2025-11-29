@@ -22,26 +22,18 @@ function maskUrl(url: string): string {
     }
 }
 
-// Debug function to log environment variables
+// Debug function to log environment variables (only in development)
 function debugEnvVariables() {
+    // Only log in development mode to avoid performance issues and log pollution
+    if (process.env.NODE_ENV !== "development") return;
+
     console.log("=== ENVIRONMENT VARIABLES DEBUG ===");
     console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-    console.log("DATABASE_URL (masked):", maskUrl(process.env.DATABASE_URL || ""));
-    console.log("POSTGRES_URL exists:", !!process.env.POSTGRES_URL);
-    console.log("POSTGRES_URL (masked):", maskUrl(process.env.POSTGRES_URL || ""));
     console.log("TEXTBELT_KEY exists:", !!process.env.TEXTBELT_KEY);
     console.log("GOOGLE_MAPS_KEY exists:", !!process.env.GOOGLE_MAPS_KEY);
     console.log("NEXT_PUBLIC_BUSINESS_PHONE:", process.env.NEXT_PUBLIC_BUSINESS_PHONE);
-    console.log("SERVICE_AREA:", process.env.SERVICE_AREA);
+    console.log("NEXT_PUBLIC_SERVICE_AREA:", process.env.NEXT_PUBLIC_SERVICE_AREA);
     console.log("NEXT_PUBLIC_BUSINESS_ADDRESS:", process.env.NEXT_PUBLIC_BUSINESS_ADDRESS);
-    console.log("All env keys:", Object.keys(process.env).filter(key => 
-        key.includes("DATABASE") || 
-        key.includes("POSTGRES") || 
-        key.includes("TEXTBELT") || 
-        key.includes("GOOGLE") ||
-        key.includes("BUSINESS") ||
-        key.includes("SERVICE")
-    ));
     console.log("===================================");
 }
 
@@ -159,6 +151,19 @@ export async function POST(req: NextRequest) {
                     ]
                 },
                 { status: 400 }
+            );
+        }
+
+        // Check for race condition - verify slot is still available
+        const existingAppointments = await databaseService.getAppointmentsByDateTime(date, time);
+        if (existingAppointments.success && existingAppointments.appointments && existingAppointments.appointments.length > 0) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "Time slot no longer available",
+                    code: "SLOT_TAKEN"
+                },
+                { status: 409 }
             );
         }
 
