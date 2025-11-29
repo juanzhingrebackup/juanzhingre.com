@@ -117,6 +117,10 @@ const DemoPlayer: React.FC = () => {
             audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             audio.removeEventListener("timeupdate", handleTimeUpdate);
             audio.removeEventListener("ended", handleEnded);
+            // Pause and clear audio source to free memory
+            audio.pause();
+            audio.src = "";
+            audio.load();
         };
     }, [currentTrack]);
 

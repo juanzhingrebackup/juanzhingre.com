@@ -423,6 +423,9 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
             const dbResult = await dbResponse.json();
 
             if (dbResult.success) {
+                // Clear localStorage after successful appointment
+                localStorage.removeItem("pendingAppointment");
+
                 // Send SMS notification to business
                 try {
                     await fetch("/api/sms/send-business-notification", {

@@ -1,7 +1,7 @@
 "use client";
 
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
-import React, { useLayoutEffect, useCallback, useState, useRef } from "react";
+import React, { useLayoutEffect, useCallback, useState, useRef, useEffect } from "react";
 import { albums, getAlbumCover, getImagePath, Album } from "@/src/data/photos";
 import LoadingBar from "./LoadingBar";
 import "./AlbumViewer.css";
@@ -24,6 +24,7 @@ const AlbumViewer: React.FC = () => {
     
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const currentImageRef = useRef<HTMLImageElement | null>(null);
+    const preloadedImagesRef = useRef<HTMLImageElement[]>([]);
 
     // Preload all album covers and wait for them to load
     useLayoutEffect(() => {
@@ -111,7 +112,10 @@ const AlbumViewer: React.FC = () => {
         // Load current image
         loadImage(currentAlbum.id, currentImageIndex);
 
-        // Preload adjacent images in background (browser will handle caching)
+        // Clear previous preloaded images to free memory
+        preloadedImagesRef.current = [];
+
+        // Preload adjacent images in background (limited to +/- 2 images)
         const preloadAdjacent = (offset: number) => {
             const targetIndex = currentImageIndex + offset;
             if (targetIndex >= 0 && targetIndex < currentAlbum.photoCount) {
@@ -119,19 +123,21 @@ const AlbumViewer: React.FC = () => {
                 const img = new Image();
                 img.src = imagePath;
                 img.decode?.().catch(() => {});
+                // Store reference for cleanup
+                preloadedImagesRef.current.push(img);
             }
         };
 
-        // Preload next and previous images
+        // Preload only next and previous images (reduced from +/- 2)
         preloadAdjacent(1);
         preloadAdjacent(-1);
-        preloadAdjacent(2);
-        preloadAdjacent(-2);
     }, [currentAlbum, currentImageIndex, viewMode, loadImage]);
 
     const handleAlbumClick = useCallback((album: Album) => {
         // Reset loading states when switching albums
         setImageLoadingStates(new Map());
+        // Clear loaded images cache to free memory
+        setLoadedImages(new Set());
         setCurrentAlbum(album);
         setCurrentImageIndex(0);
         setViewMode("imageViewer");
@@ -154,6 +160,11 @@ const AlbumViewer: React.FC = () => {
         setViewMode("grid");
         setCurrentAlbum(null);
         setCurrentImageIndex(0);
+        // Clear loaded images cache to free memory
+        setLoadedImages(new Set());
+        setImageLoadingStates(new Map());
+        // Clear preloaded image references
+        preloadedImagesRef.current = [];
     }, []);
 
     // Keyboard navigation for image viewer
@@ -173,6 +184,16 @@ const AlbumViewer: React.FC = () => {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [viewMode, handleNavigate, handleCloseImageViewer]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            // Clear all state and references on unmount
+            setLoadedImages(new Set());
+            setImageLoadingStates(new Map());
+            preloadedImagesRef.current = [];
+        };
+    }, []);
 
     // Show grid loading bar
     if (viewMode === "grid" && isGridLoading) {

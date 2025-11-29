@@ -467,31 +467,19 @@ const Desktop: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Preload all album images into cache when Desktop component mounts
-    // This happens before clicking the ishv4ra icon, so images are ready when needed
+    // Preload only album covers (not all images) to reduce memory usage
+    // Full albums will be loaded on-demand when user opens them
     useEffect(() => {
-        const preloadAllAlbumImages = () => {
-            // Preload all album covers first (priority)
+        const preloadAlbumCovers = () => {
+            // Only preload album covers (much smaller memory footprint)
             albums.forEach((album) => {
                 const coverImg = new Image();
                 coverImg.src = getAlbumCover(album.id);
             });
-
-            // Then preload all other images in background
-            // Use setTimeout to defer so it doesn't block initial render
-            setTimeout(() => {
-                albums.forEach((album) => {
-                    for (let i = 1; i < album.photoCount; i++) {
-                        const img = new Image();
-                        img.src = getImagePath(album.id, i);
-                        img.decode?.().catch(() => {});
-                    }
-                });
-            }, 100); // Small delay to let covers load first
         };
 
-        // Start preloading immediately when component mounts
-        preloadAllAlbumImages();
+        // Start preloading covers when component mounts
+        preloadAlbumCovers();
     }, []);
 
     return (

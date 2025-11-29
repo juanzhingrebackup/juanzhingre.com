@@ -48,31 +48,41 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handleNavigate, onClose]);
 
-    // Ensure videos play when view changes and pause others
+    // Ensure videos play when view changes and pause/cleanup others
     useLayoutEffect(() => {
         if (currentViewIndex === 0) {
             if (video0Ref.current) {
                 video0Ref.current.currentTime = 0;
                 video0Ref.current.play().catch(console.error);
             }
+            // Cleanup other video to free memory
             if (video1Ref.current) {
                 video1Ref.current.pause();
+                video1Ref.current.src = "";
+                video1Ref.current.load();
             }
         } else if (currentViewIndex === 1) {
             if (video1Ref.current) {
                 video1Ref.current.currentTime = 0;
                 video1Ref.current.play().catch(console.error);
             }
+            // Cleanup other video to free memory
             if (video0Ref.current) {
                 video0Ref.current.pause();
+                video0Ref.current.src = "";
+                video0Ref.current.load();
             }
         } else if (currentViewIndex === 2) {
-            // View 2 is just an image, pause all videos
+            // View 2 is just an image, pause and cleanup all videos
             if (video0Ref.current) {
                 video0Ref.current.pause();
+                video0Ref.current.src = "";
+                video0Ref.current.load();
             }
             if (video1Ref.current) {
                 video1Ref.current.pause();
+                video1Ref.current.src = "";
+                video1Ref.current.load();
             }
         }
     }, [currentViewIndex]);
@@ -82,6 +92,20 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
         if (video0Ref.current) {
             video0Ref.current.play().catch(console.error);
         }
+
+        // Cleanup on unmount
+        return () => {
+            if (video0Ref.current) {
+                video0Ref.current.pause();
+                video0Ref.current.src = "";
+                video0Ref.current.load();
+            }
+            if (video1Ref.current) {
+                video1Ref.current.pause();
+                video1Ref.current.src = "";
+                video1Ref.current.load();
+            }
+        };
     }, []);
 
     const hasPrev = currentViewIndex > 0;

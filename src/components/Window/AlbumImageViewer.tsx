@@ -19,45 +19,44 @@ interface AlbumImageViewerProps {
 
 const AlbumImageViewer: React.FC<AlbumImageViewerProps> = ({ album, onClose }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
     
     const imageContainerRef = useRef<HTMLDivElement>(null);
     const currentImageRef = useRef<HTMLImageElement | null>(null);
+    const preloadedImagesRef = useRef<HTMLImageElement[]>([]);
 
-    // Preload all images in the album when component mounts
+    // Preload only adjacent images (not all images) to save memory
     useLayoutEffect(() => {
-        let loadedCount = 0;
-        const totalImages = album.photoCount;
-        const imagePromises: Promise<void>[] = [];
+        // Clear previous preloaded images
+        preloadedImagesRef.current = [];
 
-        // Preload all images in the album
-        for (let i = 0; i < album.photoCount; i++) {
-            const imagePath = getImagePath(album.id, i);
-            const img = new Image();
-            const promise = new Promise<void>((resolve) => {
+        const preloadAdjacent = (offset: number) => {
+            const targetIndex = currentImageIndex + offset;
+            if (targetIndex >= 0 && targetIndex < album.photoCount) {
+                const imagePath = getImagePath(album.id, targetIndex);
+                const img = new Image();
                 img.onload = () => {
-                    loadedCount++;
-                    setLoadingProgress((loadedCount / totalImages) * 100);
                     setPreloadedImages((prev) => new Set(prev).add(imagePath));
-                    resolve();
                 };
-                img.onerror = () => {
-                    loadedCount++;
-                    setLoadingProgress((loadedCount / totalImages) * 100);
-                    resolve(); // Continue even if one fails
-                };
-            });
-            img.src = imagePath;
-            imagePromises.push(promise);
-        }
+                img.src = imagePath;
+                preloadedImagesRef.current.push(img);
+            }
+        };
 
-        // Wait for all images to load, then show viewer
-        Promise.all(imagePromises).then(() => {
-            setIsLoading(false);
-        });
-    }, [album.id, album.photoCount]);
+        // Only preload current, next, and previous images
+        preloadAdjacent(0); // current
+        preloadAdjacent(1); // next
+        preloadAdjacent(-1); // previous
+    }, [album.id, album.photoCount, currentImageIndex]);
+
+    // Cleanup on unmount
+    useLayoutEffect(() => {
+        return () => {
+            preloadedImagesRef.current = [];
+            setPreloadedImages(new Set());
+        };
+    }, []);
 
     const handleNavigate = useCallback((direction: "prev" | "next") => {
         const maxIndex = album.photoCount - 1;
@@ -89,15 +88,6 @@ const AlbumImageViewer: React.FC<AlbumImageViewerProps> = ({ album, onClose }) =
     const hasPrev = currentImageIndex > 0;
     const hasNext = currentImageIndex < album.photoCount - 1;
     const currentImagePath = getImagePath(album.id, currentImageIndex);
-
-    // Show loading bar until all images are loaded
-    if (isLoading) {
-        return (
-            <div className="album-image-viewer-container">
-                <LoadingBar progress={loadingProgress} />
-            </div>
-        );
-    }
 
     return (
         <div className="album-image-viewer-container">
