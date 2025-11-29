@@ -115,16 +115,26 @@ const AlbumImageViewer: React.FC<AlbumImageViewerProps> = ({ album, onClose }) =
                         loading="eager"
                         decoding="sync"
                         onError={(e) => {
-                            const img = e.target as HTMLImageElement;
-                            img.style.display = "none";
-                            const parent = img.parentElement;
-                            if (parent) {
-                                parent.innerHTML = `
-                                    <div class="error-message">
-                                        <div>Image Failed to Load</div>
-                                        <div class="error-sub-message">${currentImagePath}</div>
-                                    </div>
-                                `;
+                            try {
+                                const img = e.target as HTMLImageElement;
+                                img.style.display = "none";
+                                const parent = img.parentElement;
+                                if (parent) {
+                                    // Use textContent instead of innerHTML for security
+                                    const errorDiv = document.createElement("div");
+                                    errorDiv.className = "error-message";
+                                    const errorText = document.createElement("div");
+                                    errorText.textContent = "Image Failed to Load";
+                                    const errorSubText = document.createElement("div");
+                                    errorSubText.className = "error-sub-message";
+                                    errorSubText.textContent = currentImagePath;
+                                    errorDiv.appendChild(errorText);
+                                    errorDiv.appendChild(errorSubText);
+                                    parent.innerHTML = "";
+                                    parent.appendChild(errorDiv);
+                                }
+                            } catch (error) {
+                                console.error("Error handling image load failure:", error);
                             }
                         }}
                     />

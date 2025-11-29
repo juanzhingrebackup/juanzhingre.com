@@ -5,7 +5,7 @@ import { generateConfirmationCode } from "@/src/utils/confirmationCode";
 import DistanceValidator from "@/src/components/DistanceValidator/DistanceValidator";
 import ConfirmationCode from "@/src/components/Window/ConfirmationCode";
 import LookBookViewer from "@/src/components/Window/LookBookViewer";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import "./AppointmentMaker.css";
 
 interface AppointmentMakerProps {
@@ -495,9 +495,9 @@ const AppointmentMaker: React.FC<AppointmentMakerProps> = ({ onClose }) => {
         setIsAddressSelected(isSelected);
     };
 
-    const handleAddressValidation = (isValid: boolean, distance?: number) => {
+    const handleAddressValidation = useCallback((isValid: boolean, distance?: number) => {
         setIsAddressValid(isValid);
-    };
+    }, []);
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newPhone = e.target.value;

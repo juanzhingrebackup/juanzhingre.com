@@ -30,10 +30,15 @@ class GoogleMapsService {
         let apiKey;
         try {
             const response = await fetch("/api/google-maps/key");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             apiKey = data.apiKey;
         } catch (error) {
             console.error("Failed to fetch Google Maps API key:", error);
+            // Restore original console.warn before throwing
+            console.warn = originalWarn;
             throw new Error("Failed to load Google Maps API key");
         }
 
@@ -41,6 +46,8 @@ class GoogleMapsService {
             console.error(
                 "Google Maps API key not found. Please set GOOGLE_MAPS_KEY in your Vercel environment variables."
             );
+            // Restore original console.warn before throwing
+            console.warn = originalWarn;
             throw new Error("Google Maps API key is required");
         }
 
@@ -52,6 +59,11 @@ class GoogleMapsService {
             });
 
             await this.loader.load();
+
+            // Check if google.maps is available before using it
+            if (typeof google === "undefined" || !google.maps || !google.maps.places) {
+                throw new Error("Google Maps API failed to load properly");
+            }
 
             this.autocompleteService =
                 new google.maps.places.AutocompleteService();
@@ -68,6 +80,9 @@ class GoogleMapsService {
             // Restore original console.warn
             console.warn = originalWarn;
             console.error("Error loading Google Maps API:", error);
+            // Reset state on error so it can be retried
+            this.isLoaded = false;
+            this.loader = null;
             throw error;
         }
     }

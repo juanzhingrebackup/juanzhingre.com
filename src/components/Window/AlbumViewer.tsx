@@ -215,22 +215,37 @@ const AlbumViewer: React.FC = () => {
                                     setLoadedImages((prev) => new Set(prev).add(currentImagePath));
                                 }}
                                 onError={(e) => {
-                                    const img = e.target as HTMLImageElement;
-                                    img.style.display = "none";
-                                    const parent = img.parentElement;
-                                    if (parent) {
-                                        parent.innerHTML = `
-                                            <div class="error-message">
-                                                <div>Image Failed to Load</div>
-                                                <div class="error-sub-message">${currentImagePath}</div>
-                                            </div>
-                                        `;
+                                    try {
+                                        const img = e.target as HTMLImageElement;
+                                        img.style.display = "none";
+                                        const parent = img.parentElement;
+                                        if (parent) {
+                                            // Use textContent instead of innerHTML for security
+                                            const errorDiv = document.createElement("div");
+                                            errorDiv.className = "error-message";
+                                            const errorText = document.createElement("div");
+                                            errorText.textContent = "Image Failed to Load";
+                                            const errorSubText = document.createElement("div");
+                                            errorSubText.className = "error-sub-message";
+                                            errorSubText.textContent = currentImagePath;
+                                            errorDiv.appendChild(errorText);
+                                            errorDiv.appendChild(errorSubText);
+                                            parent.innerHTML = "";
+                                            parent.appendChild(errorDiv);
+                                        }
+                                        setImageLoadingStates((prev) => {
+                                            const newMap = new Map(prev);
+                                            newMap.set(currentImageIndex, false);
+                                            return newMap;
+                                        });
+                                    } catch (error) {
+                                        console.error("Error handling image load failure:", error);
+                                        setImageLoadingStates((prev) => {
+                                            const newMap = new Map(prev);
+                                            newMap.set(currentImageIndex, false);
+                                            return newMap;
+                                        });
                                     }
-                                    setImageLoadingStates((prev) => {
-                                        const newMap = new Map(prev);
-                                        newMap.set(currentImageIndex, false);
-                                        return newMap;
-                                    });
                                 }}
                             />
                             {isLoading && (
