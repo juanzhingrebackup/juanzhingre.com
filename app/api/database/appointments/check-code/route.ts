@@ -48,4 +48,3 @@ export async function GET(req: NextRequest) {
         );
     }
 } // By John Michael
-

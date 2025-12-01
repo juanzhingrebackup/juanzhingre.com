@@ -16,13 +16,13 @@ const ConfirmationCode: React.FC<ConfirmationCodeProps> = ({
     generatedCode,
     appointmentDetails
 }) => {
-    const [code, setCode] = useState(["", "", "", "", ""]);
+    const [code, setCode] = useState(["", "", "", ""]);
     const [isValid, setIsValid] = useState(false);
 
-    // Check if all 5 spaces are filled and code matches
+    // Check if all 4 spaces are filled and code matches
     useEffect(() => {
         const fullCode = code.join("");
-        const isComplete = fullCode.length === 5;
+        const isComplete = fullCode.length === 4;
         const isCorrect = fullCode === generatedCode;
         setIsValid(isComplete && isCorrect);
     }, [code, generatedCode]);
@@ -36,7 +36,7 @@ const ConfirmationCode: React.FC<ConfirmationCodeProps> = ({
         setCode(newCode);
 
         // Auto-focus next input
-        if (value && index < 4) {
+        if (value && index < 3) {
             const nextInput = document.getElementById(
                 `code-input-${index + 1}`
             );
@@ -71,7 +71,7 @@ const ConfirmationCode: React.FC<ConfirmationCodeProps> = ({
                 </div>
 
                 <div className="confirmation-content">
-                    <p>Please enter the 5-letter confirmation code sent via SMS:</p>
+                    <p>Please enter the 4-letter confirmation code sent via SMS:</p>
 
                     <div className="code-inputs">
                         {code.map((letter, index) => (

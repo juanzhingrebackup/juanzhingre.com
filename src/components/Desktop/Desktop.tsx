@@ -2,15 +2,15 @@
 
 import { Icon as IconType, Window as WindowType, DesktopState } from "@/src/types/desktop";
 import AppointmentMaker from "@/src/components/Window/AppointmentMaker";
+import OriginsWindow from "@/src/components/Window/OriginsWindow";
 import React, { useState, useCallback, useEffect } from "react";
-import { flushSync } from "react-dom";
 import MusicWindow from "@/src/components/Window/MusicWindow";
-import CreditsWindow from "@/src/components/Window/Origins";
-import DemoPlayer from "@/src/components/Window/DemoPlayer";
 import AlbumViewer from "@/src/components/Window/AlbumViewer";
+import DemoPlayer from "@/src/components/Window/DemoPlayer";
+import { albums, getAlbumCover } from "@/src/data/photos";
 import Window from "@/src/components/Window/Window";
 import Icon from "@/src/components/Icon/Icon";
-import { albums, getAlbumCover, getImagePath } from "@/src/data/photos";
+import { flushSync } from "react-dom";
 import "./Desktop.css";
 
 // Default desktop positions for icons
@@ -151,10 +151,10 @@ const Desktop: React.FC = () => {
     );
 
 
-    const handleOpenCredits = useCallback(() => {
+    const handleOpenOrigins = useCallback(() => {
         const isMobile = window.innerWidth <= 768;
         const newWindow: WindowType = {
-            id: "credits-window",
+            id: "origins-window",
             title: "Origins",
             type: "app",
             position: isMobile ? { x: 20, y: 20 } : { x: 300, y: 200 },
@@ -164,13 +164,11 @@ const Desktop: React.FC = () => {
                       height: Math.min(750, window.innerHeight - 100)
                   }
                 : { width: 500, height: 600 },
-            isMinimized: false,
-            isMaximized: false,
             isOpen: true,
             zIndex: Date.now(),
             content: (
-                <CreditsWindow
-                    onClose={() => handleWindowClose("credits-window")}
+                <OriginsWindow
+                    onClose={() => handleWindowClose("origins-window")}
                 />
             )
         };
@@ -192,31 +190,18 @@ const Desktop: React.FC = () => {
             );
 
             if (existingWindow) {
-                // If app is already running, bring it to focus and unminimize if needed
-                if (existingWindow.isMinimized) {
-                    setDesktopState((prev) => ({
-                        ...prev,
-                        windows: prev.windows.map((w) =>
+                // If app is already running, bring it to focus
+                setDesktopState((prev) => ({
+                    ...prev,
+                    activeWindowId: existingWindow.id,
+                    windows: prev.windows.map((w) => ({
+                        ...w,
+                        zIndex:
                             w.id === existingWindow.id
-                                ? { ...w, isMinimized: false }
-                                : w
-                        ),
-                        activeWindowId: existingWindow.id
-                    }));
-                } else {
-                    // Just bring to focus
-                    setDesktopState((prev) => ({
-                        ...prev,
-                        activeWindowId: existingWindow.id,
-                        windows: prev.windows.map((w) => ({
-                            ...w,
-                            zIndex:
-                                w.id === existingWindow.id
-                                    ? Date.now()
-                                    : w.zIndex
-                        }))
-                    }));
-                }
+                                ? Date.now()
+                                : w.zIndex
+                    }))
+                }));
                 return;
             }
 
@@ -233,8 +218,6 @@ const Desktop: React.FC = () => {
                               height: Math.min(400, window.innerHeight - 100)
                           }
                         : { width: 600, height: 350 },
-                    isMinimized: false,
-                    isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
                     content: <MusicWindow />
@@ -261,8 +244,6 @@ const Desktop: React.FC = () => {
                               height: window.innerHeight - 100
                           }
                         : { width: 800, height: 600 },
-                    isMinimized: false,
-                    isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
                     content: <AlbumViewer />
@@ -304,8 +285,6 @@ const Desktop: React.FC = () => {
                               )
                           }
                         : { width: 450, height: calculatedHeight + 37 },
-                    isMinimized: false,
-                    isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
                     content: <DemoPlayer />
@@ -329,8 +308,6 @@ const Desktop: React.FC = () => {
                               height: window.innerHeight - 100
                           }
                         : { width: 500, height: 650 },
-                    isMinimized: false,
-                    isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
                     content: (
@@ -354,8 +331,6 @@ const Desktop: React.FC = () => {
                     type: "app",
                     position: { x: 150, y: 150 },
                     size: { width: 800, height: 600 },
-                    isMinimized: false,
-                    isMaximized: false,
                     isOpen: true,
                     zIndex: Date.now(),
                     content: <div>Welcome to {icon.name}!</div>
@@ -380,23 +355,6 @@ const Desktop: React.FC = () => {
         }));
     }, []);
 
-    const handleWindowMinimize = useCallback((windowId: string) => {
-        setDesktopState((prev) => ({
-            ...prev,
-            windows: prev.windows.map((w) =>
-                w.id === windowId ? { ...w, isMinimized: !w.isMinimized } : w
-            )
-        }));
-    }, []);
-
-    const handleWindowMaximize = useCallback((windowId: string) => {
-        setDesktopState((prev) => ({
-            ...prev,
-            windows: prev.windows.map((w) =>
-                w.id === windowId ? { ...w, isMaximized: !w.isMaximized } : w
-            )
-        }));
-    }, []);
 
     const handleWindowMove = useCallback(
         (windowId: string, x: number, y: number) => {
@@ -504,8 +462,6 @@ const Desktop: React.FC = () => {
                         key={window.id}
                         window={window}
                         onClose={handleWindowClose}
-                        onMinimize={handleWindowMinimize}
-                        onMaximize={handleWindowMaximize}
                         onMove={handleWindowMove}
                         onResize={handleWindowResize}
                         onFocus={(windowId) => {
@@ -544,9 +500,7 @@ const Desktop: React.FC = () => {
                     </button>
 
                     <div className="taskbarItems">
-                        {desktopState.windows
-                            .filter((window) => !window.isMinimized)
-                            .map((window) => {
+                        {desktopState.windows.map((window) => {
                                 // Get the icon for this window type
                                 let iconSrc = "";
                                 if (window.id.startsWith("music-")) {
@@ -574,8 +528,7 @@ const Desktop: React.FC = () => {
                                                         ) {
                                                             return {
                                                                 ...w,
-                                                                zIndex: Date.now(),
-                                                                isMinimized: false // Ensure window is not minimized
+                                                                zIndex: Date.now()
                                                             };
                                                         }
                                                         return w;
@@ -689,7 +642,7 @@ const Desktop: React.FC = () => {
                         <div
                             className="startMenuItem"
                             onClick={() => {
-                                handleOpenCredits();
+                                handleOpenOrigins();
                                 setIsStartMenuOpen(false);
                             }}
                         >

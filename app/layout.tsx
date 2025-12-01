@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata, Viewport } from "next";
+import { albums } from "@/src/data/photos";
 import "./globals.css";
 import "98.css";
-import { albums } from "@/src/data/photos";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
     title: "juanzhingre.com",
@@ -12,9 +12,15 @@ export const metadata: Metadata = {
     icons: {
         icon: "/favicon.png",
         apple: "/favicon.png"
-    },
-    themeColor: "#000000",
-    viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    }
+};
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    themeColor: "#000000"
 };
 
 // Album IDs for preloading (generated from photos.ts)

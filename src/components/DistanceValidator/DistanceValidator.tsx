@@ -6,9 +6,9 @@ import "./DistanceValidator.css";
 
 interface DistanceValidatorProps {
     address: string;
-    businessLocation: string; // Your business address
+    businessLocation: string;
     onValidationResult: (isValid: boolean, distance?: number) => void;
-    isAddressSelected?: boolean; // Whether user selected from autocomplete
+    isAddressSelected?: boolean;
 }
 
 const DistanceValidator: React.FC<DistanceValidatorProps> = ({
@@ -99,7 +99,6 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
     return (
         <>
             <audio ref={audioRef} src="/audio/too-far-error.mp3" preload="auto" />
-            {/* Don't show anything if we're still validating or if there's no result yet */}
             {!isValidating && validationResult && !validationResult.isValid && (
                 <div className="distance-validator">
                     <div className="validation-status invalid">
@@ -112,8 +111,6 @@ const DistanceValidator: React.FC<DistanceValidatorProps> = ({
                     </div>
                 </div>
             )}
-            {/* Don't show anything if address is valid (within service area) */}
-            {/* The green checkmark will be shown by the AddressAutocomplete component */}
         </>
     );
 };

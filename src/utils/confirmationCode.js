@@ -1,15 +1,15 @@
 export const generateConfirmationCode = () => {
-    // Use 5 characters for more unique combinations (26^5 = 11,881,376)
+    // Use 4 characters for unique combinations (26^4 = 456,976)
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let code = "";
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
         code += letters.charAt(Math.floor(Math.random() * letters.length));
     }
     return code;
 };
 
 export const validateConfirmationCode = (code) => {
-    return /^[A-Z]{5}$/.test(code);
+    return /^[A-Z]{4}$/.test(code);
 };
 
 // Helper to check if confirmation code already exists in database

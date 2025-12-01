@@ -1,0 +1,56 @@
+.container {
+    height: 100%;
+    padding: 20px;
+    background: #ffffff;
+    font-family: "Perfect DOS VGA 437", "Courier New", Courier, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin: 0 0 30px 0;
+    color: #000;
+    text-align: center;
+}
+
+.content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #000;
+    text-align: center;
+}
+
+.originSection {
+    margin-bottom: 15px;
+}
+
+.link {
+    text-decoration: underline;
+    color: #000;
+    text-decoration-color: #000;
+}
+
+.volume-text {
+    font-size: 10px;
+    margin-top: 20px;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 16px;
+    }
+
+    .content {
+        font-size: 14px;
+    }
+
+    .volume-text {
+        font-size: 8px;
+    }
+} /* By John Michael */

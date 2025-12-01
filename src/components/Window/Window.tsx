@@ -7,8 +7,6 @@ import "./Window.css";
 interface WindowProps {
     window: WindowType;
     onClose: (id: string) => void;
-    onMinimize: (id: string) => void;
-    onMaximize: (id: string) => void;
     onMove: (id: string, x: number, y: number) => void;
     onResize: (id: string, width: number, height: number) => void;
     onFocus: (id: string) => void;
@@ -18,8 +16,6 @@ interface WindowProps {
 const Window: React.FC<WindowProps> = ({
     window,
     onClose,
-    onMinimize,
-    onMaximize,
     onMove,
     onResize,
     onFocus,
@@ -134,7 +130,7 @@ const Window: React.FC<WindowProps> = ({
     return (
         <div
             ref={windowRef}
-            className={`windowContainer ${isDragging ? "dragging" : ""} ${window.isMinimized ? "minimized" : ""} ${window.isMaximized ? "maximized" : ""}`}
+            className={`windowContainer ${isDragging ? "dragging" : ""}`}
             style={{
                 left: window.position.x,
                 top: window.position.y,
@@ -165,9 +161,7 @@ const Window: React.FC<WindowProps> = ({
                 <div className="windowBody">{children}</div>
             </div>
 
-            {!window.isMaximized && (
-                <div className="resizeHandle" onMouseDown={handleResizeStart} />
-            )}
+            <div className="resizeHandle" onMouseDown={handleResizeStart} />
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import databaseService from "@/src/services/databaseService.js";
 import { NextRequest, NextResponse } from "next/server";
 
-// Helper function to mask sensitive data in URLs
+// Helper method to mask sensitive data in URLs
 function maskUrl(url: string): string {
     if (!url) return "undefined";
     try {
@@ -22,22 +22,7 @@ function maskUrl(url: string): string {
     }
 }
 
-// Debug function to log environment variables (only in development)
-function debugEnvVariables() {
-    // Only log in development mode to avoid performance issues and log pollution
-    if (process.env.NODE_ENV !== "development") return;
-
-    console.log("=== ENVIRONMENT VARIABLES DEBUG ===");
-    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-    console.log("TEXTBELT_KEY exists:", !!process.env.TEXTBELT_KEY);
-    console.log("GOOGLE_MAPS_KEY exists:", !!process.env.GOOGLE_MAPS_KEY);
-    console.log("NEXT_PUBLIC_BUSINESS_PHONE:", process.env.NEXT_PUBLIC_BUSINESS_PHONE);
-    console.log("NEXT_PUBLIC_SERVICE_AREA:", process.env.NEXT_PUBLIC_SERVICE_AREA);
-    console.log("NEXT_PUBLIC_BUSINESS_ADDRESS:", process.env.NEXT_PUBLIC_BUSINESS_ADDRESS);
-    console.log("===================================");
-}
-
-// Helper function to check database configuration
+// Helper method to check database configuration
 function checkDatabaseConfig() {
     if (!process.env.DATABASE_URL) {
         console.error("DATABASE_URL environment variable is not set");
@@ -55,9 +40,6 @@ function checkDatabaseConfig() {
 // GET - Fetch all appointments
 export async function GET(req: NextRequest) {
     try {
-        // Debug: Log environment variables
-        debugEnvVariables();
-        
         // Check if DATABASE_URL is set
         const configError = checkDatabaseConfig();
         if (configError) return configError;

@@ -14,8 +14,6 @@ export interface Window {
     type: "app" | "folder" | "game";
     position: { x: number; y: number };
     size: { width: number; height: number };
-    isMinimized: boolean;
-    isMaximized: boolean;
     isOpen: boolean;
     zIndex: number;
     content?: React.ReactNode;

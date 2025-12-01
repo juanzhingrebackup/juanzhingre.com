@@ -4,6 +4,7 @@ class SMSService {
         this.baseUrl = "https://textbelt.com";
     }
 
+    // Helper method to format phone numbers
     formatPhoneNumber(phone) {
         let cleaned = phone.replace(/[^\d+]/g, "");
         if (cleaned.startsWith("+")) return cleaned;
@@ -13,6 +14,7 @@ class SMSService {
         return cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
     }
 
+    // Helper method to send an SMS message with Textbelt API
     async sendSMS(phone, message) {
         try {
             const url = `${this.baseUrl}/text`;
@@ -39,7 +41,7 @@ class SMSService {
         }
     }
 
-    // Templates
+    // Template for appointment confirmation
     appointmentConfirmation(d) {
         // Check if location is "At Location" (case-insensitive)
         const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
@@ -60,6 +62,7 @@ class SMSService {
         return msg;
     }
 
+    // Template for business notification
     businessNotification(d) {
         const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
         const displayAddress = isAtLocation
@@ -81,35 +84,14 @@ class SMSService {
         return msg;
     }
 
-    appointmentCancellation(d) {
-        const isAtLocation = d.location && d.location.toLowerCase().includes("at location");
-        const displayAddress = isAtLocation
-            ? process.env.NEXT_PUBLIC_BUSINESS_ADDRESS
-            : d.address;
-        const address = displayAddress || "1776 Sego Ln, Provo, UT";
-        const fullDate = d.date ? `${d.day}, ${d.date}` : d.day;
-        let msg = `❌ APPOINTMENT CANCELLED\n\n`;
-        msg += `- Customer: ${d.name}\n`;
-        msg += `- Phone: ${d.phone}\n`;
-        msg += `- Service: ${d.cut}\n`;
-        msg += `- Date: ${fullDate}\n`;
-        msg += `- Time: ${d.time}\n`;
-        msg += `- Location: ${d.location}\n`;
-        msg += `- Address: ${address}\n`;
-        if (d.notes) {
-            msg += `- Notes: ${d.notes}\n`;
-        }
-        msg += `\n- Cancelled at: ${new Date().toLocaleString()}`;
-        return msg;
-    }
-
-    // Service methods
+    // Service method to send an appointment confirmation SMS to the client
     async sendAppointmentConfirmation(d) {
         const formatted = this.formatPhoneNumber(d.phone);
         const message = this.appointmentConfirmation(d);
         return await this.sendSMS(formatted, message);
     }
 
+    // Service method to send a business notification SMS to the business
     async sendBusinessNotification(d) {
         const businessPhone = process.env.NEXT_PUBLIC_BUSINESS_PHONE;
         if (!businessPhone)
@@ -118,14 +100,7 @@ class SMSService {
         const message = this.businessNotification(d);
         return await this.sendSMS(formatted, message);
     }
-
-    async sendAppointmentCancellation(d) {
-        const formatted = this.formatPhoneNumber(d.phone);
-        const message = this.appointmentCancellation(d);
-        return await this.sendSMS(formatted, message);
-    }
 }
-
 const smsService = new SMSService();
 export { SMSService, smsService };
 export default smsService; // By John Michael

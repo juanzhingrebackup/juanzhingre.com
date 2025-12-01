@@ -1,7 +1,7 @@
 "use client";
 
-import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import React, { useState, useCallback, useLayoutEffect, useRef } from "react";
+import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import { getImagePath } from "@/src/data/photos";
 import LoadingBar from "./LoadingBar";
 import "./AlbumImageViewer.css";
@@ -148,6 +148,4 @@ const AlbumImageViewer: React.FC<AlbumImageViewerProps> = ({ album, onClose }) =
         </div>
     );
 };
-
-export default AlbumImageViewer;
-
+export default AlbumImageViewer; // By John Michael

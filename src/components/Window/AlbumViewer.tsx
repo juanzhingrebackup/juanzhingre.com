@@ -1,11 +1,11 @@
 "use client";
 
-import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import React, { useLayoutEffect, useCallback, useState, useRef, useEffect } from "react";
 import { albums, getAlbumCover, getImagePath, Album } from "@/src/data/photos";
+import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import LoadingBar from "./LoadingBar";
-import "./AlbumViewer.css";
 import "./AlbumImageViewer.css";
+import "./AlbumViewer.css";
 
 type ViewMode = "grid" | "imageViewer";
 
@@ -321,5 +321,4 @@ const AlbumViewer: React.FC = () => {
         </div>
     );
 };
-
-export default AlbumViewer;
+export default AlbumViewer; // By John Michael

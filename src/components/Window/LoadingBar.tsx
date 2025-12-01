@@ -4,7 +4,7 @@ import React from "react";
 import "./LoadingBar.css";
 
 interface LoadingBarProps {
-    progress?: number; // 0-100 (kept for compatibility but not used)
+    progress?: number;
 }
 
 const LoadingBar: React.FC<LoadingBarProps> = () => {
@@ -19,7 +19,4 @@ const LoadingBar: React.FC<LoadingBarProps> = () => {
         </div>
     );
 };
-
-export default LoadingBar;
-
-
+export default LoadingBar; // By John Michael

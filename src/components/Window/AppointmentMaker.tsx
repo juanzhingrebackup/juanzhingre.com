@@ -1,8 +1,8 @@
 "use client";
 
 import AddressAutocomplete from "@/src/components/AddressAutocomplete/AddressAutocomplete";
-import { generateConfirmationCode } from "@/src/utils/confirmationCode";
 import DistanceValidator from "@/src/components/DistanceValidator/DistanceValidator";
+import { generateConfirmationCode } from "@/src/utils/confirmationCode";
 import ConfirmationCode from "@/src/components/Window/ConfirmationCode";
 import LookBookViewer from "@/src/components/Window/LookBookViewer";
 import React, { useState } from "react";

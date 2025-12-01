@@ -4,14 +4,14 @@ import React from "react";
 const MusicWindow: React.FC = () => {
     const musicServices = [
         {
-            name: "Spotify Music",
-            url: "https://open.spotify.com/artist/4pf6I2Hikzc9N7A36lKlrN?si=uwjBptUyQymSU4VZTz1fFg",
-            icon: "/images/icons/spotify.webp"
-        },
-        {
             name: "Apple Music",
             url: "https://music.apple.com/us/artist/juan-zhingre/1756562979",
             icon: "/images/icons/apple.webp"
+        },
+        {
+            name: "Spotify Music",
+            url: "https://open.spotify.com/artist/4pf6I2Hikzc9N7A36lKlrN?si=uwjBptUyQymSU4VZTz1fFg",
+            icon: "/images/icons/spotify.webp"
         },
         {
             name: "Youtube Music",

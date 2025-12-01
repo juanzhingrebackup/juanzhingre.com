@@ -10,6 +10,7 @@ class GoogleMapsService {
         this.isLoaded = false;
     }
 
+    // Async method to initialize the Google Maps API
     async initialize() {
         if (this.isLoaded) return;
 
@@ -72,6 +73,7 @@ class GoogleMapsService {
         }
     }
 
+    // Async method to get place predictions from the Google Maps API
     async getPlacePredictions(input, callback) {
         if (!this.isLoaded) {
             await this.initialize();
@@ -93,6 +95,7 @@ class GoogleMapsService {
         }
     }
 
+    // Async method to get place details from the Google Maps API
     async getPlaceDetails(placeId, callback) {
         if (!this.isLoaded) {
             await this.initialize();
@@ -106,6 +109,7 @@ class GoogleMapsService {
         this.placesService.getDetails(request, callback);
     }
 
+    // Async method to calculate the distance between two addresses
     async calculateDistance(origin, destination) {
         if (!this.isLoaded) {
             await this.initialize();

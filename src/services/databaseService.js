@@ -5,6 +5,7 @@ class DatabaseService {
         this.sql = null;
     }
 
+    // Helper method to get the SQL client
     getSql() {
         if (!this.sql) {
             if (!process.env.DATABASE_URL) {
@@ -15,6 +16,7 @@ class DatabaseService {
         return this.sql;
     }
 
+    // Async method to initialize the database
     async init() {
         try {
             // Create appointments table if it doesn't exist
@@ -58,6 +60,7 @@ class DatabaseService {
         }
     }
 
+    // Async method to create a new appointment
     async createAppointment(appointmentData) {
         const {
             name,
@@ -95,6 +98,7 @@ class DatabaseService {
         }
     }
 
+    // Async method to get all appointments
     async getAppointments() {
         try {
             const result = await this.getSql()`
@@ -114,24 +118,7 @@ class DatabaseService {
         }
     }
 
-    async getAppointmentById(id) {
-        try {
-            const result = await this.getSql()`
-                SELECT * FROM appointments WHERE id = ${id}
-            `;
-            return {
-                success: true,
-                appointment: result[0]
-            };
-        } catch (error) {
-            console.error("Error fetching appointment:", error);
-            return {
-                success: false,
-                error: error.message
-            };
-        }
-    }
-
+    // Async method to get appointments by date and time
     async getAppointmentsByDateTime(date, time) {
         try {
             const result = await this.getSql()`
@@ -153,6 +140,7 @@ class DatabaseService {
         }
     }
 
+    // Async method to get an appointment by confirmation code
     async getAppointmentByConfirmationCode(code) {
         try {
             const result = await this.getSql()`

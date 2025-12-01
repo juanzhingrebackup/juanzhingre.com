@@ -5,8 +5,10 @@
 # Directories: Node Packages
 node_modules/
 
-# Files: Next.js Declaration Files
+# Files: Next.js Declaration Files, Photos Data
 next-env.d.ts
+src/data/photos.ts
+src/data/cuts.ts
 
 # Hidden Files: Mac OS System Files
 .DS_Store

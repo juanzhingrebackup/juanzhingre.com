@@ -1,7 +1,8 @@
 "use client";
 
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
-import React, { useState, useCallback, useLayoutEffect, useRef } from "react";
+import { cuts, getCutPath } from "@/src/data/cuts";
 import "./LookBookViewer.css";
 
 interface LookBookViewerProps {
@@ -10,17 +11,14 @@ interface LookBookViewerProps {
 
 const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
     const [currentViewIndex, setCurrentViewIndex] = useState(0);
-    const [loadingStates, setLoadingStates] = useState({
-        video0: true,
-        video1: true,
-        image2: true,
-    });
-    const video0Ref = useRef<HTMLVideoElement>(null);
-    const video1Ref = useRef<HTMLVideoElement>(null);
-    const image2Ref = useRef<HTMLImageElement>(null);
+    const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
+        Object.fromEntries(cuts.map((_, i) => [i, true]))
+    );
+    
+    // Store refs for all media elements
+    const mediaRefs = useRef<Record<number, HTMLVideoElement | HTMLImageElement | null>>({});
 
-    // Total views: 0 = (0.mp4), 1 = (1.mp4), 2 = (2.webp)
-    const totalViews = 3;
+    const totalViews = cuts.length;
 
     const handleNavigate = useCallback((direction: "prev" | "next") => {
         setCurrentViewIndex((prev) => {
@@ -33,7 +31,7 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
     }, [totalViews]);
 
     // Keyboard navigation
-    useLayoutEffect(() => {
+    useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "ArrowLeft") {
                 handleNavigate("prev");
@@ -48,198 +46,124 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handleNavigate, onClose]);
 
-    // Ensure videos play when view changes and pause/cleanup others
-    useLayoutEffect(() => {
-        if (currentViewIndex === 0) {
-            if (video0Ref.current) {
-                video0Ref.current.currentTime = 0;
-                video0Ref.current.play().catch(console.error);
-            }
-            // Cleanup other video to free memory
-            if (video1Ref.current) {
-                video1Ref.current.pause();
-                video1Ref.current.src = "";
-                video1Ref.current.load();
-            }
-        } else if (currentViewIndex === 1) {
-            if (video1Ref.current) {
-                video1Ref.current.currentTime = 0;
-                video1Ref.current.play().catch(console.error);
-            }
-            // Cleanup other video to free memory
-            if (video0Ref.current) {
-                video0Ref.current.pause();
-                video0Ref.current.src = "";
-                video0Ref.current.load();
-            }
-        } else if (currentViewIndex === 2) {
-            // View 2 is just an image, pause and cleanup all videos
-            if (video0Ref.current) {
-                video0Ref.current.pause();
-                video0Ref.current.src = "";
-                video0Ref.current.load();
-            }
-            if (video1Ref.current) {
-                video1Ref.current.pause();
-                video1Ref.current.src = "";
-                video1Ref.current.load();
-            }
+    // Handle media playback when view changes
+    useEffect(() => {
+        const currentCut = cuts[currentViewIndex];
+        const currentMedia = mediaRefs.current[currentViewIndex];
+
+        if (currentCut.type === 'video' && currentMedia instanceof HTMLVideoElement) {
+            currentMedia.currentTime = 0;
+            currentMedia.play().catch(() => {
+                // Ignore autoplay errors - video is still clickable
+            });
         }
+
+        // Pause all other videos
+        cuts.forEach((cut, index) => {
+            if (index !== currentViewIndex && cut.type === 'video') {
+                const video = mediaRefs.current[index];
+                if (video instanceof HTMLVideoElement) {
+                    video.pause();
+                }
+            }
+        });
     }, [currentViewIndex]);
 
-    // Start first video on mount
-    useLayoutEffect(() => {
-        if (video0Ref.current) {
-            video0Ref.current.play().catch(console.error);
-        }
-
-        // Cleanup on unmount
+    // Cleanup on unmount
+    useEffect(() => {
         return () => {
-            if (video0Ref.current) {
-                video0Ref.current.pause();
-                video0Ref.current.src = "";
-                video0Ref.current.load();
-            }
-            if (video1Ref.current) {
-                video1Ref.current.pause();
-                video1Ref.current.src = "";
-                video1Ref.current.load();
-            }
+            cuts.forEach((cut, index) => {
+                if (cut.type === 'video') {
+                    const video = mediaRefs.current[index];
+                    if (video instanceof HTMLVideoElement) {
+                        video.pause();
+                        video.src = "";
+                        video.load();
+                    }
+                }
+            });
         };
     }, []);
 
     const hasPrev = currentViewIndex > 0;
     const hasNext = currentViewIndex < totalViews - 1;
 
-    const handleVideo0LoadStart = () => {
-        setLoadingStates(prev => ({ ...prev, video0: true }));
+    const handleMediaLoad = (index: number) => {
+        setLoadingStates(prev => ({ ...prev, [index]: false }));
     };
 
-    const handleVideo0CanPlay = () => {
-        setLoadingStates(prev => ({ ...prev, video0: false }));
+    const handleMediaLoadStart = (index: number) => {
+        setLoadingStates(prev => ({ ...prev, [index]: true }));
     };
 
-    const handleVideo0Waiting = () => {
-        setLoadingStates(prev => ({ ...prev, video0: true }));
-    };
+    const renderMedia = (cut: typeof cuts[0], index: number) => {
+        const isActive = currentViewIndex === index;
+        
+        if (!isActive) return null;
 
-    const handleVideo0Playing = () => {
-        setLoadingStates(prev => ({ ...prev, video0: false }));
-    };
-
-
-    const handleVideo1LoadStart = () => {
-        setLoadingStates(prev => ({ ...prev, video1: true }));
-    };
-
-    const handleVideo1CanPlay = () => {
-        setLoadingStates(prev => ({ ...prev, video1: false }));
-    };
-
-    const handleVideo1Waiting = () => {
-        setLoadingStates(prev => ({ ...prev, video1: true }));
-    };
-
-    const handleVideo1Playing = () => {
-        setLoadingStates(prev => ({ ...prev, video1: false }));
-    };
-
-    const handleImage2Load = () => {
-        setLoadingStates(prev => ({ ...prev, image2: false }));
-    };
-
-    const handleImage2Error = () => {
-        setLoadingStates(prev => ({ ...prev, image2: false }));
-    };
-
-    // Reset loading states when view changes and check if images are already loaded
-    useLayoutEffect(() => {
-        if (currentViewIndex === 0) {
-            setLoadingStates(prev => ({ ...prev, video0: true }));
-        } else if (currentViewIndex === 1) {
-            setLoadingStates(prev => ({ ...prev, video1: true }));
-        } else if (currentViewIndex === 2) {
-            setLoadingStates(prev => ({ ...prev, image2: true }));
-            // Check if image is already loaded (cached)
-            if (image2Ref.current?.complete) {
-                setLoadingStates(prev => ({ ...prev, image2: false }));
-            }
+        if (cut.type === 'video') {
+            return (
+                <div key={index} className="lookbook-view-single">
+                    <div className="lookbook-media-wrapper">
+                        <video
+                            ref={(el) => { mediaRefs.current[index] = el; }}
+                            src={getCutPath(cut.filename)}
+                            className="lookbook-video-single"
+                            muted
+                            loop
+                            playsInline
+                            preload="auto"
+                            onClick={(e) => {
+                                const video = e.currentTarget;
+                                if (video.paused) {
+                                    video.play().catch(() => {});
+                                } else {
+                                    video.pause();
+                                }
+                            }}
+                            onLoadStart={() => handleMediaLoadStart(index)}
+                            onCanPlay={() => handleMediaLoad(index)}
+                            onLoadedData={() => handleMediaLoad(index)}
+                            onWaiting={() => handleMediaLoadStart(index)}
+                            onPlaying={() => handleMediaLoad(index)}
+                            style={{ cursor: 'pointer' }}
+                        />
+                        {loadingStates[index] && (
+                            <div className="lookbook-loading-overlay">
+                                <div className="lookbook-spinner"></div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <div key={index} className="lookbook-view-single">
+                    <div className="lookbook-media-wrapper">
+                        <img
+                            ref={(el) => { mediaRefs.current[index] = el; }}
+                            src={getCutPath(cut.filename)}
+                            alt={`Look Book ${index}`}
+                            className="lookbook-image-single"
+                            onLoad={() => handleMediaLoad(index)}
+                            onError={() => handleMediaLoad(index)}
+                        />
+                        {loadingStates[index] && (
+                            <div className="lookbook-loading-overlay">
+                                <div className="lookbook-spinner"></div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
         }
-    }, [currentViewIndex]);
+    };
 
     return (
         <div className="lookbook-viewer-container">
             <div className="lookbook-viewer-content">
                 <div className="lookbook-container">
-                    {currentViewIndex === 0 && (
-                        <div className="lookbook-view-single">
-                            <div className="lookbook-media-wrapper">
-                                <video
-                                    ref={video0Ref}
-                                    src="/images/cuts/0.mp4"
-                                    className="lookbook-video-single"
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    onLoadStart={handleVideo0LoadStart}
-                                    onCanPlay={handleVideo0CanPlay}
-                                    onLoadedData={handleVideo0CanPlay}
-                                    onWaiting={handleVideo0Waiting}
-                                    onPlaying={handleVideo0Playing}
-                                />
-                                {loadingStates.video0 && (
-                                    <div className="lookbook-loading-overlay">
-                                        <div className="lookbook-spinner"></div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {currentViewIndex === 1 && (
-                        <div className="lookbook-view-single">
-                            <div className="lookbook-media-wrapper">
-                                <video
-                                    ref={video1Ref}
-                                    src="/images/cuts/1.mp4"
-                                    className="lookbook-video-single"
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    onLoadStart={handleVideo1LoadStart}
-                                    onCanPlay={handleVideo1CanPlay}
-                                    onLoadedData={handleVideo1CanPlay}
-                                    onWaiting={handleVideo1Waiting}
-                                    onPlaying={handleVideo1Playing}
-                                />
-                                {loadingStates.video1 && (
-                                    <div className="lookbook-loading-overlay">
-                                        <div className="lookbook-spinner"></div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {currentViewIndex === 2 && (
-                        <div className="lookbook-view-single">
-                            <div className="lookbook-media-wrapper">
-                                <img
-                                    ref={image2Ref}
-                                    src="/images/cuts/2.webp"
-                                    alt="Look Book 2"
-                                    className="lookbook-image-single"
-                                    onLoad={handleImage2Load}
-                                    onError={handleImage2Error}
-                                />
-                                {loadingStates.image2 && (
-                                    <div className="lookbook-loading-overlay">
-                                        <div className="lookbook-spinner"></div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    {cuts.map((cut, index) => renderMedia(cut, index))}
                 </div>
                 <div className="lookbook-viewer-controls">
                     <button
@@ -270,6 +194,4 @@ const LookBookViewer: React.FC<LookBookViewerProps> = ({ onClose }) => {
         </div>
     );
 };
-
-export default LookBookViewer;
-
+export default LookBookViewer; // By John Michael

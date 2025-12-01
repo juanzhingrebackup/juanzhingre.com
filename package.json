@@ -1,44 +1,44 @@
 {
     "name": "juanzhingre.com",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "private": true,
     "scripts": {
-        "dev": "tsx scripts/generate-albums.ts && next dev -p 2509",
-        "dev:mobile": "tsx scripts/generate-albums.ts && next dev -p 2509 -H 0.0.0.0",
-        "build": "tsx scripts/generate-albums.ts && next build",
-        "start": "next start -p 2509"
+        "dev": "tsx scripts/generate-albums.ts && tsx scripts/generate-cuts.ts && next dev",
+        "build": "tsx scripts/generate-albums.ts && tsx scripts/generate-cuts.ts && next build",
+        "start": "next start",
+        "generate:albums": "tsx scripts/generate-albums.ts",
+        "generate:cuts": "tsx scripts/generate-cuts.ts"
     },
     "dependencies": {
         "@googlemaps/js-api-loader": "^1.16.2",
         "@neondatabase/serverless": "^0.9.5",
-        "@types/google.maps": "^3.55.0",
-        "@vercel/analytics": "^1.5.0",
         "@vercel/speed-insights": "^1.2.0",
-        "98.css": "^0.1.21",
-        "axios": "^1.12.2",
-        "framer-motion": "^12.23.12",
-        "next": "16.0.1",
-        "react": "19.2.0",
-        "react-dom": "19.2.0",
-        "react-icons": "^5.5.0",
+        "@types/google.maps": "^3.55.0",
         "styled-components": "^6.1.19",
+        "@vercel/analytics": "^1.5.0",
+        "framer-motion": "^12.23.12",
+        "react-icons": "^5.5.0",
+        "web-vitals": "^2.1.4",
+        "react-dom": "19.2.0",
+        "98.css": "^0.1.21",
         "twilio": "^5.9.0",
-        "web-vitals": "^2.1.4"
+        "axios": "^1.12.2",
+        "next": "16.0.1",
+        "react": "19.2.0"
     },
     "devDependencies": {
-        "@tailwindcss/postcss": "^4",
-        "@types/node": "^20",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
         "@types/styled-components": "^5.1.34",
-        "eslint": "^9",
         "eslint-config-next": "16.0.1",
+        "@tailwindcss/postcss": "^4",
+        "@types/react-dom": "^19",
+        "@types/react": "^19",
+        "@types/node": "^20",
         "tailwindcss": "^4",
+        "typescript": "^5",
         "tsx": "^4.19.2",
-        "typescript": "^5"
+        "eslint": "^9"
     },
     "engines": {
         "node": ">=20.x"
-    },
-    "author": "By John Michael"
+    }
 }
